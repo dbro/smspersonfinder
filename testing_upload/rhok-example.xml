@@ -4,7 +4,11 @@
            xsi:schemaLocation="http://zesty.ca/pfif/1.1
                                http://zesty.ca/pfif/1.1/pfif-1.1.xsd">
   <pfif:person>
+<<<<<<< HEAD
     <pfif:person_record_id>rhok1.com/person.9999</pfif:person_record_id>
+=======
+    <pfif:person_record_id>rhok1.com/person.4040/pfif:person_record_id>
+>>>>>>> jon
     <pfif:entry_date>2005-09-03T09:21:12Z</pfif:entry_date>
     <pfif:author_name>Bill Mandil</pfif:author_name>
     <pfif:author_email>bmd67893@example.com</pfif:author_email>
