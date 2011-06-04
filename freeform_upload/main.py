@@ -16,6 +16,24 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.ext import db
+#from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext import db
+
+import cgi
+import datetime
+import urllib
+import wsgiref.handlers
+
+
+class Message(db.Model):
+  """Messages with status information"""
+  status = db.StringProperty()
+  status_timestamp = db.DateTimeProperty(auto_now_add=True)
+  source_phone_number = db.StringProperty()
+  message_timestamp = db.DateTimeProperty()
+  message = db.StringProperty(multiline=True)
+  parsed_message = db.StringProperty(multiline=True)
 
 
 class MainHandler(webapp.RequestHandler):
