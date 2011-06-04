@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from util import add_string_element
 
 PFIF_12_NS = "http://zesty.ca/pfif/1.2"
