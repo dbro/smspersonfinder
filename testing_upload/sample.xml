@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<pfif:pfif xmlns:pfif="http://zesty.ca/pfif/1.3"> 
+  <pfif:person> 
+    <pfif:person_record_id>rhok1.com/person.113147</pfif:person_record_id> 
+    <pfif:entry_date>2011-06-04T18:43:37Z</pfif:entry_date> 
+    <pfif:expiry_date>2011-07-04T18:43:37Z</pfif:expiry_date> 
+    <pfif:author_name>Lionel Young</pfif:author_name> 
+    <pfif:source_name>rhok.googlepersonfinder.appspot.com</pfif:source_name> 
+    <pfif:source_date>2011-06-04T18:43:37Z</pfif:source_date> 
+    <pfif:source_url>http://rhok.googlepersonfinder.appspot.com/view?id=rhok1.com%2Fperson.113147</pfif:source_url> 
+    <pfif:full_name></pfif:full_name> 
+    <pfif:first_name>Jon</pfif:first_name> 
+    <pfif:last_name>Koff</pfif:last_name> 
+    <pfif:other>description:
+    wearing a rhok shirt
+</pfif:other> 
+    <pfif:note> 
+      <pfif:note_record_id>rhok1.com/note.116107</pfif:note_record_id> 
+      <pfif:person_record_id>rhok1.com/person.113147</pfif:person_record_id> 
+      <pfif:entry_date>2011-06-04T18:43:37Z</pfif:entry_date> 
+      <pfif:author_name>Lionel Young</pfif:author_name> 
+      <pfif:source_date>2011-06-04T18:43:37Z</pfif:source_date> 
+      <pfif:found>true</pfif:found> 
+      <pfif:status>believed_alive</pfif:status> 
+      <pfif:last_known_location>Google CL4</pfif:last_known_location> 
+      <pfif:text>in google campus, being awesome</pfif:text> 
+    </pfif:note> 
+    <pfif:note> 
+      <pfif:note_record_id>rhok1.com/note.108696</pfif:note_record_id> 
+      <pfif:person_record_id>rhok1.com/person.113147</pfif:person_record_id> 
+      <pfif:entry_date>2011-06-04T18:44:03Z</pfif:entry_date> 
+      <pfif:author_name>Lionel young</pfif:author_name> 
+      <pfif:source_date>2011-06-04T18:44:03Z</pfif:source_date> 
+      <pfif:found>true</pfif:found> 
+      <pfif:status>believed_alive</pfif:status> 
+      <pfif:text>he's awesome</pfif:text> 
+    </pfif:note> 
+    <pfif:note> 
+      <pfif:note_record_id>rhok1.com/note.115109</pfif:note_record_id> 
+      <pfif:person_record_id>rhok1.com/person.113147</pfif:person_record_id> 
+      <pfif:entry_date>2011-06-04T18:44:32Z</pfif:entry_date> 
+      <pfif:author_name>Lionel Young</pfif:author_name> 
+      <pfif:source_date>2011-06-04T18:44:32Z</pfif:source_date> 
+      <pfif:status>believed_alive</pfif:status> 
+      <pfif:text>he's awesome</pfif:text> 
+    </pfif:note> 
+    <pfif:note> 
+      <pfif:note_record_id>rhok1.com/note.106999</pfif:note_record_id> 
+      <pfif:person_record_id>rhok1.com/person.113147</pfif:person_record_id> 
+      <pfif:entry_date>2011-06-04T18:52:56Z</pfif:entry_date> 
+      <pfif:author_name>Lionel Young</pfif:author_name> 
+      <pfif:source_date>2011-06-04T18:52:56Z</pfif:source_date> 
+      <pfif:status>believed_dead</pfif:status> 
+      <pfif:text>not alive</pfif:text> 
+    </pfif:note> 
+  </pfif:person> 
+</pfif:pfif> 

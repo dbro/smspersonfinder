@@ -1,2 +1,2 @@
-curl -X POST -H 'Content-type: application/xml' --data-binary @rhok-example.xml \
-    https://rhok1.googlepersonfinder.appspot.com/api/write?key=punsOMMYMAI27tk
+curl -X POST -H 'Content-type: application/xml' --data-binary @sample2.xml \
+    https://rhok.googlepersonfinder.appspot.com/api/write?key=punsOMMYMAI27tkr

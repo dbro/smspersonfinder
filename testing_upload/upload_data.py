@@ -12,8 +12,7 @@ def build_url(action, domain, key):
 def build_request_body(formatted_msg, namespace):
     # Formatted message format: Last#First#Comment
     fields = formatted_msg.split('#')
-    return """
-    <?xml version="1.0" encoding="UTF-8"?> 
+    return """<?xml version="1.0" encoding="UTF-8"?> 
     <pfif:pfif xmlns:pfif="http://zesty.ca/pfif/1.3"> 
       <pfif:person> 
         <pfif:person_record_id>%(namespace)s/person.113147</pfif:person_record_id> 
@@ -38,8 +37,7 @@ if __name__ == "__main__":
     namespace = "rhok1.com"
 
     url = build_url(action, domain, key)
-    print url
-
     data = build_request_body('Koff#Jonathan#No comments.', namespace)
-    req = urllib2.Request(url, data)
+
+    req = urllib2.Request(url, data, { 'Content-Type': 'application/xml' })
     print urllib2.urlopen(req).read()
