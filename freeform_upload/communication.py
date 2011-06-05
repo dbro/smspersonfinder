@@ -44,6 +44,9 @@ def parse_formatted_message(timestr, source, message):
     timestr: timestring in the format 2011-05-05 19:30:55
     source: typically a 10 digital phone number
     message: formatted with last#first#description#note
+
+    If note contains alive, dead, missing, seeking, or author,
+    the status is updated accordingly.
     """
     #message = 'Koff#Jonathan#No comments.#Note.'
     timestr = str(timestr)
@@ -73,6 +76,18 @@ def parse_formatted_message(timestr, source, message):
     p.source_name = source
     n.source_date = p.entry_date
     n.text = fields[3]
+
+    if 'alive' in n.text:
+        n.status = 'believed_alive'
+    elif 'missing' in n.text:
+        n.status = 'believed_missing'
+    elif 'dead' in n.text:
+        n.status = 'believed_dead'
+    elif 'seeking' in n.text:
+        n.status = 'information_sought'
+    elif 'author' in n.text:
+        n.status = 'is_note_author'
+
     p.add_note(n)
  
     return p
