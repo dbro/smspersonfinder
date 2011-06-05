@@ -45,6 +45,8 @@ div#message {
 	margin-top:25px;
 	margin-bottom:10px;
   padding: 8px;
+  padding-right: 45px;
+  line-height: 35px;
 	background-color:#FFFFCC;
 }
 
