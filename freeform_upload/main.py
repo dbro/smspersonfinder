@@ -20,13 +20,15 @@ from google.appengine.ext import db
 from google.appengine.ext import db
 from django.utils import simplejson
 
-import logging
 import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-from communication import upload_to_personfinder
 import logging
+import search 
+import models
+import uuid
+from communication import parse_formatted_message,upload_to_personfinder
 
 class Message(db.Model):
     """Messages with status information"""
@@ -38,8 +40,32 @@ class Message(db.Model):
     parsed_message = db.StringProperty(multiline=True)
 
     def __str__(self):
-        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
+        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key().id(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
+class Accumulator(db.Model):
+  name = db.StringProperty()
+  counter = db.IntegerProperty()
+
+def atomic_add_to_counter(ctr_name, val):
+  def add_to_counter(key, val):
+    obj = db.get(key)
+    obj.counter += val
+    obj.put()
+
+  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
+  acc = q.get()
+  if acc == None:
+    acc = Accumulator()
+    acc.name = ctr_name
+    acc.counter = val
+    acc.put()
+  else:
+    db.run_in_transaction(add_to_counter, acc.key(), val)
+
+def get_counter(ctr_name):
+  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
+  acc = q.get()
+  return acc.counter
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
@@ -59,10 +85,12 @@ class CreateHandler(webapp.RequestHandler):
         # try to upload to person finder, if it fails (i.e. has no #)
         try:
             logging.debug('trying to use formatted parsing method')
-            upload_to_personfinder(time, source, message)
+            person = parse_formatted_message(time, source, message)
+            upload_to_personfinder(person)
         except:
             logging.debug('falling back on crowdsource parsing method')
-            self.create_task_for_crowdsource(time, source, message)
+            message = self.create_task_for_crowdsource(time, source, message)
+            message.put()
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
@@ -73,17 +101,15 @@ class CreateHandler(webapp.RequestHandler):
             source_phone_number=source,
             message=message,
             status='NEW')
-        message.put()
+        return message
+
 
 class PostHandler(webapp.RequestHandler):
-    def get(self):
-        self.fetch_task_for_crowdsource()
-
     def post(self):
-        logging.debug('falling back on crowdsource parsing method')
-        # check data for problems
-        # get new message to parse
-        #self.fetch_task_for_crowdsource(errorfromlastpost)
+        errorresult = False
+        if self.request.get('id'):
+            errorresult = self.update_parsed_message()
+        self.fetch_task_for_crowdsource(errorresult)
 
     def fetch_task_for_crowdsource(self, errorfromlastpost = False):
         # get the oldest new message
@@ -95,13 +121,13 @@ class PostHandler(webapp.RequestHandler):
 
         # update the status of the message with the current timestamp
         response = {}
-        if len(results) > 0:
+        if len(results):
             r = results[0]
             response = {
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
-                'errorstatus' : if errorfromlastpost then 'errorfromlastpost' else 'ok',
-                'id' : repr(r.key())
+                'errorstatus' : if errorfromlastpost then 'parse_error' else 'ok',
+                'id' : repr(r.key().id())
             }
             r.status_timestamp = datetime.datetime.now()
             r.put()
@@ -111,13 +137,70 @@ class PostHandler(webapp.RequestHandler):
 
         # respond
         self.response.out.write(simplejson.dumps(response))
+    
+    def update_parsed_message(self):
+        logging.debug('Request: %s' % self.request)
+        message = Message.get_by_id(long(self.request.get('id')))
+
+        p = models.Person()
+        namespace = "rhok1.com"
+        unique_id = uuid.uuid1()
+        p.person_record_id = '%s/person.%s' % (namespace, unique_id)
+        p.author_name = message.source_phone_number
+
+        for attr in models.PFIF_13_PERSON_ATTRS:
+            if self.request.get(attr):
+                logging.debug('%s: %s' % (attr, self.request.get(attr)))
+                setattr(p, attr, self.request.get(attr))
+
+        for attr in models.PFIF_13_NOTE_ATTRS:
+            if self.request.get(attr):
+                if not p.notes:
+                    n = models.Note()
+                    n.note_record_id = '%s/note.%s' % (namespace, unique_id)
+                    n.author_name = message.source_phone_number
+                    p.notes.append(n)
+                setattr(p.notes[0], attr, self.request.get(attr))
+
+        logging.debug('###### Here')
+        message.status_timestamp = datetime.datetime.now()
+        errorparsing = False
+        if self.request.get('parseable').lower() == 'false':
+            message.status = 'UNPARSEABLE'
+            errorparsing = True
+        else:
+            upload_to_personfinder(p)
+            message.status = 'SENT'
+
+        logging.debug('Person: %s' % repr(p))
+        logging.debug('Message: %s' % message)
+        message.put()
+        return errorparsing
+
+class SearchHandler(webapp.RequestHandler):
+    def get(self):
+        try:
+            message = self.request.get('message')
+        except (TypeError, ValueError):
+            self.response.set_status(400);
+            self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
+            return
+        
+        result = search.handle(message)
+        self.response.out.write(result)
+        return
+
+    def post(self):
+        self.response.set_status(405);
+        self.response.out.write("POST not supported")
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([
         ('/', MainHandler),
         ('/create', CreateHandler), 
-        ('/post', PostHandler)], 
+        ('/post', PostHandler),
+        ('/search', SearchHandler)],
         debug=True)
     util.run_wsgi_app(application)
 

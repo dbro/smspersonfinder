@@ -1,0 +1,19 @@
+SMS Person Finder
+----
+SMS Interface to Google Person Finder
+(e.g. http://japan.googlepersonfinder.appspot.com)
+
+APIs used:
+ * Tropo
+ * Google App Engine
+ * Google Person Finder
+
+Built during Random Hacks of Kindness #3 - Silicon Valley (2011)
+
+SMS Person Finder is: 	//add your name! :)
+ * Kevin Conley
+ * Lionel Young
+ * Jonathan Koff
+ * Anup Mantri
+ * Dan Brown
+ * Deepali Singla
