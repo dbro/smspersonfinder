@@ -1,7 +1,7 @@
 body {
 	font:14px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
 	color:#424242;
-	margin-top:70px;
+	margin-top:50px;
 	margin-left:130px;
 }
 
@@ -12,9 +12,10 @@ div#welcome {
 	font:35px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
 	color:grey;
 	font-weight:bold;
+  margin-bottom: 20px;
 }
 
-div#description {
+div#description, div#description2, div#description3 {
 	color:grey;
 	width:600px;
 }
