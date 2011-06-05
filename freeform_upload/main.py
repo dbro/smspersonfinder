@@ -25,7 +25,7 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-from communication import upload_to_personfinder
+from communication import parse_formatted_message,upload_to_personfinder
 import logging
 import search 
 
@@ -60,7 +60,8 @@ class CreateHandler(webapp.RequestHandler):
         # try to upload to person finder, if it fails (i.e. has no #)
         try:
             logging.debug('trying to use formatted parsing method')
-            upload_to_personfinder(time, source, message)
+            person = parse_formatted_message(time, source, message)
+            upload_to_personfinder(person)
         except:
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)

@@ -38,25 +38,21 @@ def build_personfinder_url(action, domain, key):
     url = "https://%s.googlepersonfinder.appspot.com/api/%s?key=%s" % (domain, action, key)
     return url
 
-def upload_to_personfinder(timestr, source, message):
-    """Upload to Google Person Finder
+def parse_formatted_message(timestr, source, message):
+    """Parse formatted message
 
     timestr: timestring in the format 2011-05-05 19:30:55
     source: typically a 10 digital phone number
     message: Formatted with last#first#description#note
-
     """
     #message = 'Koff#Jonathan#No comments.#Note.'
-    domain = "rhok"
-    key = "punsOMMYMAI27tkr"
-    action = "write"
-    namespace = "rhok1.com"
     timestr = str(timestr)
-    message = str(message)
     source = str(source)
+    message = str(message)
+    fields = message.split('#');
+    namespace = "rhok1.com"
     unique_id = uuid.uuid1()
 
-    fields = message.split('#');
     p = Person()
     p.person_record_id = '%s/person.%s' % (namespace, unique_id)
 
@@ -72,23 +68,27 @@ def upload_to_personfinder(timestr, source, message):
     p.description = fields[2]
 
     n = Note()
-    #n.note_record_id = namespace + '/' + 'note.123456'
     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
     n.author_name = source
     p.source_name = source
     n.source_date = p.entry_date
     n.text = fields[3]
     p.add_note(n)
-    
-    url = build_personfinder_url(action, domain, key)
-    #fmtd_msg = message.FormattedMessage(namespace, message)
+ 
+    return p
 
-    data = to_xml(persons=[p]).toxml()
+def upload_to_personfinder(person):
+    """Upload to Google Person Finder """
+    action = "write"
+    domain = "rhok"
+    key = "punsOMMYMAI27tkr"
+
+    url = build_personfinder_url(action, domain, key)
+
+    data = to_xml(persons=[person]).toxml()
     req = urllib2.Request(
       url, data, { 'Content-Type': 'application/xml' })
-      #url, fmtd_msg.serializeAsPFIF(), { 'Content-Type': 'application/xml' })
     result = urllib2.urlopen(req).read()
-    #print result
     return result
 
 if __name__ == "__main__":
