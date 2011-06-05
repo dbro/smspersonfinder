@@ -1,0 +1,25 @@
+application: smspersonfinder
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /
+  static_files: static/index2.html
+  upload: static/index2.html
+
+- url: /js
+  static_dir: static/js
+
+- url: /images
+  static_dir: static/images
+
+- url: /css
+  static_dir: static/css
+
+- url: /jquery-ui-1.8.13.custom
+  static_dir: static/jquery-ui-1.8.13.custom
+
+- url: /.*
+  script: main.py
+

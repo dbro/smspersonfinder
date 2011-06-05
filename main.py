@@ -20,15 +20,15 @@ from google.appengine.ext import db
 from google.appengine.ext import db
 from django.utils import simplejson
 
-import logging
 import cgi
 import datetime
 import urllib
 import wsgiref.handlers
 import logging
 import search 
-from communication import parse_formatted_message,upload_to_personfinder
 import models
+import uuid
+from communication import parse_formatted_message, upload_to_personfinder, split_message_to_fields
 
 class Message(db.Model):
     """Messages with status information"""
@@ -40,7 +40,7 @@ class Message(db.Model):
     parsed_message = db.StringProperty(multiline=True)
 
     def __str__(self):
-        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
+        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key().id(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
 class Accumulator(db.Model):
   name = db.StringProperty()
@@ -87,12 +87,19 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('trying to use formatted parsing method')
             person = parse_formatted_message(time, source, message)
             upload_to_personfinder(person)
+
+            fields = split_message_to_fields(message)
+            reply = 'Added to Person Finder.\nName: %s %s' % (fields['person_first_name'],
+                                                               fields['person_last_name'])
+            # limit to 140
+            reply = reply[0:139]
         except:
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)
             message.put()
+            reply = "Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description"
 
-        self.response.out.write("<html><body><p>%s</p></body></html>" % message)
+        self.response.out.write("%s" % reply)
 
     def create_task_for_crowdsource(self, timestr, source, message):
         # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
@@ -105,15 +112,19 @@ class CreateHandler(webapp.RequestHandler):
 
 
 class PostHandler(webapp.RequestHandler):
+    #Added by Dan for testing
     def get(self):
-        self.fetch_task_for_crowdsource()
+        self.post()
 
     def post(self):
-        if not self.request.get('id'):
-            self.update_parsed_message()
-        logging.debug('falling back on crowdsource parsing method')
+        logging.debug('post handler post method called')
+        errorresult = False
+        if self.request.get('id'):
+            errorresult = self.update_parsed_message()
+        self.fetch_task_for_crowdsource(errorresult)
 
-    def fetch_task_for_crowdsource(self):
+    def fetch_task_for_crowdsource(self, errorfromlastpost = False):
+        logging.debug('fetch task for crowdsource method called')
         # get the oldest new message
         q = Message.all()
         q.filter("status =", "NEW")
@@ -128,8 +139,8 @@ class PostHandler(webapp.RequestHandler):
             response = {
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
-                'errorstatus' : 'ok',
-                'id' : repr(r.key())
+                'errorstatus' : 'parse_error' if errorfromlastpost else 'ok',
+                'id' : repr(r.key().id())
             }
             r.status_timestamp = datetime.datetime.now()
             r.put()
@@ -141,11 +152,46 @@ class PostHandler(webapp.RequestHandler):
         self.response.out.write(simplejson.dumps(response))
     
     def update_parsed_message(self):
-        p = models.Person()
-        for attr in models.PFIF_13_PERSON_ATTRS:
-            setattr(p, attr, self.request.get(attr, None))
-        self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
+        logging.debug('update parsed message method called')
+        logging.debug('Request: %s' % self.request)
+        message = Message.get_by_id(long(self.request.get('id')))
 
+        p = models.Person()
+        namespace = "rhok1.com"
+        unique_id = uuid.uuid1()
+        p.person_record_id = '%s/person.%s' % (namespace, unique_id)
+        p.author_name = message.source_phone_number
+
+        for attr in models.PFIF_13_PERSON_ATTRS:
+            if self.request.get(attr):
+                logging.debug('%s: %s' % (attr, self.request.get(attr)))
+                setattr(p, attr, self.request.get(attr))
+
+        for attr in models.PFIF_13_NOTE_ATTRS:
+            if self.request.get(attr):
+                if not p.notes:
+                    n = models.Note()
+                    n.note_record_id = '%s/note.%s' % (namespace, unique_id)
+                    n.author_name = message.source_phone_number
+                    n.source_date = datetime.datetime.isoformat(message.time)
+                    n.text = "raw message text received : " + message.message
+                    p.notes.append(n)
+                setattr(p.notes[0], attr, self.request.get(attr))
+
+        logging.debug('###### Here')
+        message.status_timestamp = datetime.datetime.now()
+        errorparsing = False
+        if self.request.get('parseable').lower() == 'false':
+            message.status = 'UNPARSEABLE'
+            errorparsing = True
+        else:
+            upload_to_personfinder(p)
+            message.status = 'SENT'
+
+        logging.debug('Person: %s' % repr(p))
+        logging.debug('Message: %s' % message)
+        message.put()
+        return errorparsing
 
 class SearchHandler(webapp.RequestHandler):
     def get(self):
