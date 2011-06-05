@@ -27,6 +27,7 @@ import urllib
 import wsgiref.handlers
 from communication import upload_to_personfinder
 import logging
+import search 
 
 class Message(db.Model):
     """Messages with status information"""
@@ -109,12 +110,30 @@ class PostHandler(webapp.RequestHandler):
         # respond
         self.response.out.write(simplejson.dumps(response))
 
+class SearchHandler(webapp.RequestHandler):
+    def get(self):
+        try:
+            message = self.request.get('message')
+        except (TypeError, ValueError):
+            self.response.set_status(400);
+            self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
+            return
+        
+        result = search.handle(message)
+        self.response.out.write(result)
+        return
+
+    def post(self):
+        self.response.set_status(405);
+        self.response.out.write("POST not supported")
+
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([
         ('/', MainHandler),
         ('/create', CreateHandler), 
-        ('/post', PostHandler)], 
+        ('/post', PostHandler),
+        ('/search', SearchHandler)],
         debug=True)
     util.run_wsgi_app(application)
 
