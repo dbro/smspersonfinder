@@ -5,15 +5,17 @@ import urllib
 
 answer()
 
-Domain = "smspersonfinder.appspot.com"
+Domain = "http://smspersonfinder.appspot.com"
+Path = "/search?"
 
 OriginNumber = currentCall.callerID
 
 # Current implementation: name[,dob(MM/DD/YY),address]
 IncomingMessage =  currentCall.initialText 
+QueryArgs = { 'message':IncomingMessage }
 
-URI = "/search?message=%s" % IncomingMessage
-Query = urllib.urlencode("%s%s" % (domain, URI))
+URI = urllib.urlencode(QueryArgs)
+Query = "%s%s%s" % (Domain, Path, URI)
 
 # Retrieve result from GET
 result = urllib2.urlopen(Query).read()
