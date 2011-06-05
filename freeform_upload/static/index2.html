@@ -1,11 +1,12 @@
 <html>
   <head>
+  <link rel="stylesheet" href="css/formalize.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css" />
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
   <script type="text/javascript" src="js/fast_input.js"></script>
+  <script type="text/javascript" src="js/jquery.formalize.js"></script>
   <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
-  <!--<script type="text/javascript" src="js/jquery.formalize.js"></script>-->
   <script type="text/javascript" src="js/underscore-min.js"></script>
  
   </head>
@@ -13,7 +14,8 @@
 
 	<div id="mainheader">
 		<div id="welcome"> Welcome to the personfinder app. </div>
-		<div id="description"> Below is a text message from the disaster area. Help us complete our database by filling out as many of the fields below as possible. Bolded items are required. </div>
+		<div id="description"> Below is a text message from the disaster area. Help us complete our database by filling out as many of the fields below as possible. <b>Bolded</b> items are required. </div>
+    <div id="logo"></div>
 	</div>
 	<div id="main">	
 	    <p> <div id ="please"> Please help us decode this message:
@@ -22,24 +24,19 @@
 		<div id="message">
 		</div>
 		<div id="timestamp" class="timestamp"></div>
-		<div class="spam"><a href="#"
+		<div class="spam" id="spam"><a href="#"
     onClick="sendRequest(false);return false;">Mark as spam</a><br/></div>
-		<div class="skip"><a href="#"
+		<div class="skip" id="skip"><a href="#"
 		onClick="clearID();sendRequest(true);return false;">Skip this one.</a></div>
   </div>
 	    </p>
-		<p>
-		<div id="decode">
-			Decode
-		</div>
-		</p>
 		<div class="form-field">
 	    <form id="dataform">
 		  <input type="hidden" name="id" id="id" value>
 		  <table class="table">
 		    <tr>
 		      <td>
-			<div class="column"><u>About this person</u> <br/><br/>
+			<div id="col1" class="column"><div class="heading">About this person</div>
 	      <label><b>Last name:</b></label> <input type="text"
   name="last_name" id="last_name" size="40" value=""> <br/>
 			  
@@ -65,35 +62,49 @@
   </div>
 
 	      
-		  </div></td><td><div class="column">
+		  </div></td><td><div id="col2" class="column">
 		   
-<u>Physical Characterstics</u><br/><br/>
-		    <label>Sex:</label><select name="sex">
+<div class="heading">Physical Characteristics</div>
+      <div id="sex_container">
+        <label>Sex:</label>
+		    <select name="sex" id="sex">
 		      <option value="" selected="yes"></option>
-		      <option value="female">female</option>
-   		      <option value="male">male</option>
-		      <option value="other">other</option>
-		      </select><br/>
-		     <label>Age:</label> <input type="text" name="age"><br/>
- 		     <label>Description:</label> 	<div class="hint">Hint</div><textarea cols="30" rows="3" name="other"></textarea><br/>
+		      <option value="female">Female</option>
+   		      <option value="male">Male</option>
+		      <option value="other">Other</option>
+		      </select>
+      </div>
+      <div id="age_container">
+		    <label>Age:</label>
+        <input type="text" name="age"><br/>
+      </div>
+ 		  <label>Description:</label> <div class="hint">Hint</div>
+      <textarea cols="30" rows="3" name="other"></textarea><br/>
 
 		  </div></td>
 
 		<td>
-		  <div class="column"><u>Home Address</u><br/><br/>
+		  <div id="col3" class="column"><div class="heading">Home Address</div>
 
 		  <label>Street Name:</label> <input type="text" name="home_street" size="40" value=""> <br/>		  
 		  <label>Neighborhood:</label> <input type="text" name="home_neighborhood" size="40" value=""> <br/>		  
 		  <label>City:</label> <input type="text" name="home_city" size="40" value=""> <br/>		  
-		  <label>Province or State:</label> <input type="text" name="home_state" size="40" value=""> <br/>	  
-		  <label>Postal code:</label> <input type="text" name="home_postal_code" size="40" value=""> <br/>	  
+      <div id="state_container">
+		    <label>State:</label>
+        <input type="text" name="home_state" size="40" value="">
+      </div>
+      <div id="postal_code_container">
+		    <label>Postal code:</label>
+        <input type="text" name="home_postal_code" size="40" value="">
+      </div>
+      <div style="clear:both"></div>
 		  <label>Country:</label> <input type="text" name="home_country" size="40" value=""> <br> 
                   </div>
 </td></tr>
 		  </table>
-		  <label><input type="submit" value="Submit"
-		  name="submit" onclick="if (checkMandatoryFields()) {
-		  sendRequest(true);}return false;"></label>
+		  <input type="submit" value="Submit"
+      name="submit" id="submit" onclick="if (checkMandatoryFields()) {
+		  sendRequest(true);}return false;">
 	    </form>
 		</div>
 	  
@@ -138,30 +149,36 @@
 		}
 		
 		}}
-	function setDataJSON(argu) {
-	console.log(argu);
-	}
 	
 	function sendRequest(is_parseable) {
-	 console.log('loggig');
+    document.body.style.cursor = 'wait';
          $.post("http://smspersonfinder.appspot.com/post",
         //$.post("http://localhost:8080/post",
 	$("#dataform").serialize() + "&parseable=" + is_parseable,
 	function(data) {
 	document.getElementById('dataform').reset();
-	a = JSON.parse(data);
-	document.getElementById('timestamp').innerHTML = a.timestamp;
-	var strings = a.message.split(" ");
-  var message = "";
-  jQuery.each(strings, function(i, val) {
-    message += "<span>" + val + "</span> ";
-  });
-	document.getElementById('message').innerHTML = message;
-  message_init();
+  if (data == "{}") {
+    document.getElementById('message').innerHTML = 'No more messages to be decoded, thanks! :-)';
+    document.getElementById('timestamp').innerHTML = '';
+    document.getElementById('please').style.display = 'none';
+    document.getElementById('submit').disabled = 'true';
+    document.getElementById('spam').style.display = 'none';
+    document.getElementById('skip').style.display = 'none';
+  } else {
+    a = JSON.parse(data);
+	  document.getElementById('timestamp').innerHTML = a.timestamp;
+	  var strings = a.message.split(" ");
+    var message = "";
+    jQuery.each(strings, function(i, val) {
+      message += "<span>" + val + "</span> ";
+    });
+    document.getElementById('message').innerHTML = message;
+    message_init();
 
-	document.getElementById('id').value = a.id;
+    document.getElementById('id').value = a.id;
 	}
-		);
+    document.body.style.cursor = 'default';
+		});
 		  }
 	</script>
   </body>
