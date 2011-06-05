@@ -19,6 +19,10 @@ div#description {
 	width:600px;
 }
 
+div#logo {
+
+}
+
 div#main {
 	margin-top:30px;
 }
@@ -40,6 +44,7 @@ div#message {
 	font:18px "Palatino Linotype", "Book Antiqua", Palatino, serif;
 	margin-top:25px;
 	margin-bottom:10px;
+  padding: 8px;
 	background-color:#FFFFCC;
 }
 
@@ -47,9 +52,30 @@ div#decode {
 	margin-top:30px;
 }
 
-input {
+input,select {
 	width:250px;
 	padding-right:80px;
+  margin-bottom: 5px;
+}
+select#sex {
+  padding-right: 0px;
+  width: 85px;
+}
+
+div#col1 {
+  border: 1px dotted #aaa;
+  margin: 0 20px 20px 0px;
+  padding: 10px;
+  width: 250px;
+}
+div#col2,div#col3 {
+  padding-top: 10px;
+}
+
+div.heading {
+  color: #666;
+	font:15px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+  margin-bottom: 8px;
 }
 
 textarea {
@@ -57,8 +83,8 @@ textarea {
 }
 
 .form-field {
-	margin-top:7px;
-	margin-left:50px;
+	margin-top:30px;
+	margin-left:0px;
 	margin-right:700px;
 	margin-bottom:20px;
 }
@@ -66,6 +92,10 @@ textarea {
 .form-field label {
 	float:left;
 	width:150px;
+}
+.form-field label.narrow {
+  width: auto;
+  margin-right: 8px;
 }
 
 .seen {
@@ -82,7 +112,7 @@ textarea {
 
 .header {
 	margin-left:50px;
-	width:600px;
+	width:750px;
 }
 
 .timestamp {
@@ -124,14 +154,35 @@ A:hover {text-decoration: none; color:#808080;}
 #message span {
   padding: 3px;
   border: 1px dotted #aaa;
+	background-color:#FFFFE0;
   cursor: move;
 }
 #message span.used {
-  color: #aa5;
+  color: #998;
 }
 #message span:hover {
   color: #888;
 }
 input.selected {
   border: 3px solid #cc6;
+}
+
+#state_container, #state_container input {
+  float: left;
+  width: 140px;
+  margin-right: 20px;
+}
+#postal_code_container, #postal_code_container input {
+  float: left;
+  width: 90px;
+}
+
+#sex_container, #sex_container select {
+  float: left;
+  width: 140px;
+  margin-right: 20px;
+}
+#age_container, #age_container input {
+  float: left;
+  width: 90px;
 }
