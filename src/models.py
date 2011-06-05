@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from util import add_string_element
 
 PFIF_13_NS = "http://zesty.ca/pfif/1.3"
@@ -107,4 +108,3 @@ class Note:
                 setattr(note, e.localName, e.firstChild.data.strip())
         return note
         
-    
