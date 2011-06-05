@@ -55,3 +55,40 @@ def from_xml(dom):
         notes.append(Note.from_xml(notexml))
     
     return (persons, notes)
+
+def hot_attrs(persons=[]):
+    PERSON_IMPORTANT_ATTRS = (
+        "first_name",
+        "last_name",
+        "sex",
+        "date_of_birth",
+        "age",
+        "home_city",
+        "home_state",
+        "home_neighborhood",
+        "home_street",
+        "home_postal_code",
+        "photo_url",
+        "other",
+        "home_country",
+    )
+    
+    attrs = {}
+    for attr in PERSON_IMPORTANT_ATTRS:
+        attrs[attr] = {}
+    
+    for person in persons:
+        for attr in PERSON_IMPORTANT_ATTRS:
+            value = getattr(person, attr)
+            attrs[attr][value] = attrs[attr].get(value, 0) + 1
+
+    counts = {}
+    for attr in PERSON_IMPORTANT_ATTRS:
+        counts[attr] = len(attrs[attr])
+    
+    result = []
+    for k,v in sorted(counts.iteritems(), key=lambda (k,v): (v,k), reverse=True):
+        result.append((k, v, attrs[k]))
+        
+    return result
+
