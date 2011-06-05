@@ -25,9 +25,10 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-from communication import parse_formatted_message,upload_to_personfinder
 import logging
 import search 
+from communication import parse_formatted_message,upload_to_personfinder
+import models
 
 class Message(db.Model):
     """Messages with status information"""
@@ -41,30 +42,6 @@ class Message(db.Model):
     def __str__(self):
         return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
-class Accumulator(db.Model):
-  name = db.StringProperty()
-  counter = db.IntegerProperty()
-
-def atomic_add_to_counter(ctr_name, val):
-  def add_to_counter(key, val):
-    obj = db.get(key)
-    obj.counter += val
-    obj.put()
-
-  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
-  acc = q.get()
-  if acc == None:
-    acc = Accumulator()
-    acc.name = ctr_name
-    acc.counter = val
-    acc.put()
-  else:
-    db.run_in_transaction(add_to_counter, acc.key(), val)
-
-def get_counter(ctr_name):
-  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
-  acc = q.get()
-  return acc.counter
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
@@ -90,7 +67,6 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)
             message.put()
-            atomic_add_to_counter('msg_count', 1)
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
@@ -103,14 +79,14 @@ class CreateHandler(webapp.RequestHandler):
             status='NEW')
         return message
 
+
 class PostHandler(webapp.RequestHandler):
     def get(self):
         self.fetch_task_for_crowdsource()
 
     def post(self):
-        if(len(self.request.get('id')) == 0):
-            return
-        self.update_parsed_message()
+        if not self.request.get('id'):
+            self.update_parsed_message()
         logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
@@ -123,7 +99,7 @@ class PostHandler(webapp.RequestHandler):
 
         # update the status of the message with the current timestamp
         response = {}
-        if len(results) > 0:
+        if len(results):
             r = results[0]
             response = {
                 'message' : r.message,
@@ -141,7 +117,11 @@ class PostHandler(webapp.RequestHandler):
         self.response.out.write(simplejson.dumps(response))
     
     def update_parsed_message(self):
+        p = models.Person()
+        for attr in models.PFIF_13_PERSON_ATTRS:
+            setattr(p, attr, self.request.get(attr, None))
         self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
+
 
 class SearchHandler(webapp.RequestHandler):
     def get(self):

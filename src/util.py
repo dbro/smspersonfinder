@@ -79,13 +79,16 @@ def hot_attrs(persons=[]):
     
     for person in persons:
         for attr in PERSON_IMPORTANT_ATTRS:
-            if getattr(person, attr) is not None:
-                attrs[attr][getattr(person, attr)] = 1
-    
+            value = getattr(person, attr)
+            attrs[attr][value] = attrs[attr].get(value, 0) + 1
+
+    counts = {}
     for attr in PERSON_IMPORTANT_ATTRS:
-        attrs[attr] = len(attrs[attr])
+        counts[attr] = len(attrs[attr])
     
     result = []
-    for k,v in sorted(attrs.iteritems(), key=lambda (k,v): (v,k), reverse=True):
-        result.append((k, v))
+    for k,v in sorted(counts.iteritems(), key=lambda (k,v): (v,k), reverse=True):
+        result.append((k, v, attrs[k]))
+        
     return result
+
