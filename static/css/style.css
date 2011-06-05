@@ -163,7 +163,7 @@ A:hover {text-decoration: none; color:#808080;}
 #message span:hover {
   color: #888;
 }
-input.selected {
+input.selected, textarea.selected {
   border: 3px solid #cc6;
 }
 
