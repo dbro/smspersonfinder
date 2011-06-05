@@ -95,7 +95,7 @@ class CreateHandler(webapp.RequestHandler):
             message.put()
             reply = "Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description"
 
-        self.response.out.write("<html><body><p>%s</p></body></html>" % reply)
+        self.response.out.write("%s" % reply)
 
     def create_task_for_crowdsource(self, timestr, source, message):
         # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
