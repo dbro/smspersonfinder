@@ -42,8 +42,8 @@ class Message(db.Model):
 
 
 class MainHandler(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write('Hello world!')
+  def get(self):
+    self.response.out.write('SMS person finder')
 
 class CreateHandler(webapp.RequestHandler):
     def get(self):
