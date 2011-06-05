@@ -5,8 +5,8 @@ api_version: 1
 
 handlers:
 - url: /
-  static_files: static/index.html
-  upload: static/index.html
+  static_files: static/index2.html
+  upload: static/index2.html
 
 - url: /js
   static_dir: static/js
