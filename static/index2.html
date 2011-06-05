@@ -172,10 +172,15 @@
   } else {
     a = JSON.parse(data);
 	  document.getElementById('timestamp').innerHTML = a.timestamp;
-	  var strings = a.message.split(" ");
+    var delim_re = /([^a-zA-Z0-9]+)/;
+	  var strings = a.message.split(delim_re);
     var message = "";
     jQuery.each(strings, function(i, val) {
-      message += "<span>" + val + "</span> ";
+      if(val.match(delim_re)) {
+        message += "<div style=\"display:inline; margin-left: -3px;\">" + val + "</div>";
+      } else if(val.length > 0) {
+        message += "<span>" + val + "</span> ";
+      }
     });
     document.getElementById('message').innerHTML = message;
     if(a.new_message_count !== undefined) {
