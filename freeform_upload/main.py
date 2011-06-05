@@ -24,6 +24,7 @@ import datetime
 import urllib
 import wsgiref.handlers
 from communication import upload_to_personfinder
+import logging
 
 class Message(db.Model):
   """Messages with status information"""
@@ -55,7 +56,7 @@ class CreateHandler(webapp.RequestHandler):
 
     # try to upload to person finder, if it fails (i.e. has no #)
     try:
-      upload_to_personfinder(message)
+      result = upload_to_personfinder(message)
       message += ' [via formatted]'
     except:
       self.send_to_crowdsource(time, source, message)
