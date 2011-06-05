@@ -129,7 +129,7 @@ A:hover {text-decoration: none; color:#808080;}
   cursor: move;
 }
 #message span.used {
-  color: #aa5;
+  color: #998;
 }
 #message span:hover {
   color: #888;
