@@ -178,7 +178,7 @@ alt="Powered by Google App Engine" /></a>
     document.getElementById('skip').style.display = 'none';
   } else {
     a = JSON.parse(data);
-	  document.getElementById('timestamp').innerHTML = a.timestamp;
+	  document.getElementById('timestamp').innerHTML = a.timestamp + " UTC";
     var delim_re = /([^a-zA-Z0-9]+)/;
 	  var strings = a.message.split(delim_re);
     var message = "";
