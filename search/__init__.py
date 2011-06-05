@@ -3,6 +3,7 @@ from models import *
 from util import *
 import urllib
 import re
+import logging
 
 SubDomain = "rhok"
 AuthToken = "soNQ67BhLRP0tIvP"
@@ -97,7 +98,8 @@ def format_info(person) :
     
     # person.other might have the description of the person
     if person.other:
-        result += chop(person.other, 10) + " "
+        other = person.other.replace('description:', '').strip()
+        result += other[0:20] + SMS_FIELD_SEP
      
     person.found_status = None
     person.found_location = None
@@ -113,7 +115,7 @@ def format_info(person) :
             #Collect Note text from the last known status
             # GFR: this text can be big, we should find the sweet spot to chop
             if note.text:
-                person.found_text = chop(note.text, 10)
+                person.found_text = chop(note.text, 15)
         if not person.found_location and note.last_known_location:
             person.found_location = note.last_known_location
         if not person.found_contact and note.phone_of_found_person:
@@ -279,6 +281,7 @@ def get_refinement_criteria(persons):
     return response
 
 def handle(message):
+    logging.debug("Search got query: %s" % message)
     query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
     data = urllib2.urlopen("%s%s" % (host, query_uri)).read()
     dom1 = dom.parseString(data)
