@@ -28,7 +28,7 @@ import logging
 import search 
 import models
 import uuid
-from communication import parse_formatted_message, upload_to_personfinder, split_message_to_fields
+from communication import parse_formatted_message, upload_to_personfinder, split_message_to_fields, convert_datetime_to_rfc3339
 
 class Message(db.Model):
     """Messages with status information"""
@@ -173,7 +173,7 @@ class PostHandler(webapp.RequestHandler):
                     n = models.Note()
                     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
                     n.author_name = message.source_phone_number
-                    n.source_date = datetime.datetime.isoformat(message.message_timestamp)
+                    n.source_date = convert_datetime_to_rfc3339(message.message_timestamp)
                     n.text = "raw message text received : " + message.message
                     p.notes.append(n)
                 setattr(p.notes[0], attr, self.request.get(attr))
