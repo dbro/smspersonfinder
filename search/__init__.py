@@ -2,6 +2,7 @@ import urllib2
 from models import *
 from util import *
 import urllib
+import re
 
 SubDomain = "rhok"
 AuthToken = "soNQ67BhLRP0tIvP"
@@ -96,7 +97,7 @@ def format_info(person) :
     
     # person.other might have the description of the person
     if person.other:
-	    result += chop(person.other, 10) + " "
+        result += chop(person.other, 10) + " "
      
     person.found_status = None
     person.found_location = None
@@ -121,12 +122,10 @@ def format_info(person) :
         if person.found_status and person.found_location and person.found_contact:
             break
 
-    if person.found_status:
-        found_status = person.found_status
-    else:
-        found_status = "no_status"
+    if not person.found_status:
+        person.found_status = "no_status"
     
-    result += found_status + SMS_FIELD_SEP
+    result += person.found_status + SMS_FIELD_SEP
     if person.found_contact:
         result += person.found_contact + SMS_FIELD_SEP
     if person.found_location:
@@ -178,8 +177,87 @@ def print_note_info(note):
     print "text........................%s" % note.text
     print "status......................%s" % note.status
 
+def format_info_compact(person) :
+    SMS_ADDRESS_SEP = ","
+    
+    result=""
+    
+    result += format_name(person) + SMS_FIELD_SEP
+    
+    if person.sex:
+        result += person.sex + SMS_FIELD_SEP
+    
+    if person.date_of_birth:
+        result += person.date_of_birth + SMS_FIELD_SEP
+    elif person.age:
+        result += person.age + SMS_FIELD_SEP
+    
+    address = ""
+    if person.home_street:
+        address += person.home_street
+    elif person.home_neighborhood:
+        if address:
+            address += SMS_ADDRESS_SEP
+        address += person.home_neighborhood
+    address = re.sub("\d+", "", address)
+    address = address[0:5]
+    if len(address) > 0:
+        result += address + SMS_FIELD_SEP
+     
+    person.found_status = None
+    person.found_location = None
+    person.found_contact = None
+    person.found_text = None
+
+    while len(person.notes):
+        note = person.notes.pop()
+        if not person.found_status and note.status:
+            if note.status == 'is_note_author':
+                note.status = 'believed_alive'
+            person.found_status = note.status
+            #Collect Note text from the last known status
+            # GFR: this text can be big, we should find the sweet spot to chop
+            if note.text:
+                person.found_text = chop(note.text, 10)
+        if not person.found_location and note.last_known_location:
+            person.found_location = note.last_known_location
+        if not person.found_contact and note.phone_of_found_person:
+            person.found_contact = note.phone_of_found_person
+        
+        if person.found_status and person.found_location and person.found_contact:
+            break
+
+    if not person.found_status:
+        found_status = "no_status"
+    
+    result += found_status + SMS_FIELD_SEP
+    if person.found_contact:
+        result += person.found_contact + SMS_FIELD_SEP
+    elif person.found_location:
+        result += person.found_location + SMS_FIELD_SEP
+    elif person.found_text:
+        result += person.found_text
+    
+    #print result
+    return result
+
 def compact_format_info(persons):
-    return ""
+    persons_str = ''
+    person_strs = [];
+    for person in persons:
+        #add a new line after each person entry in the result
+        if persons_str:
+            persons_str += SMS_PERSON_SEP
+        persons_str = format_info_compact(person)
+        person_strs.append(persons_str)
+    
+    
+    person_strs = list(set(person_strs))
+    finalString = ""
+    for personString in person_strs:
+        finalString += personString + SMS_PERSON_SEP
+    
+    return finalString
 
 def get_refinement_criteria(persons):
     SMS_ATTR_SEP = "#"
@@ -191,11 +269,11 @@ def get_refinement_criteria(persons):
             break
         response += SMS_ATTR_SEP + attr + "=["
         attr_values = ""
-        for v in values:
+        for v in values.iterkeys():
             if attr_values:
                 attr_values += ","
-            attr_values += v
-        response += "]"
+            attr_values += str(v)
+        response += attr_values + "]"
         
     chop(response, SMS_RESULT_MAXLEN)
     return response
@@ -216,12 +294,10 @@ def handle(message):
             persons_str += SMS_PERSON_SEP
         persons_str += format_info(person)
 
-    if persons_str > SMS_RESULT_MAXLEN:
+    if len(persons_str) > SMS_RESULT_MAXLEN:
         persons_str = compact_format_info(persons)
         
-        if persons_str > SMS_RESULT_MAXLEN:
+        if len(persons_str) > SMS_RESULT_MAXLEN:
             return get_refinement_criteria(persons)
 
     return persons_str
-
-
