@@ -19,6 +19,7 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext import db
 from google.appengine.ext import db
 
+import logging
 import cgi
 import datetime
 import urllib
@@ -55,11 +56,11 @@ class CreateHandler(webapp.RequestHandler):
 
     # try to upload to person finder, if it fails (i.e. has no #)
     try:
+      logging.debug('trying to use formatted parsing method')
       upload_to_personfinder(message)
-      message += ' [via formatted]'
     except:
+      logging.debug('falling back on crowdsource parsing method')
       self.send_to_crowdsource(time, source, message)
-      message += ' [via crowdsource]'
 
     self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
@@ -72,6 +73,7 @@ class CreateHandler(webapp.RequestHandler):
     message.put()
 
 def main():
+  logging.getLogger().setLevel(logging.DEBUG)
   application = webapp.WSGIApplication([('/', MainHandler),
                                         ('/create', CreateHandler)], 
                                          debug=True)
