@@ -38,22 +38,65 @@ def name_search(name, persons):
 
     return found_persons
 
+def format_name(person):
+    SMS_NAME_SEP = ","
+    
+    name = ""
+    if person.full_name:
+        name = person.full_name.split("\n")[0]
+    else:
+        if person.last_name:
+            name += person.last_name
+        if person.first_name:
+            if name:
+                name += SMS_NAME_SEP
+            name += person.first_name
+    return name
+
+def format_home_address(person):
+    SMS_ADDRESS_SEP = ","
+    
+    if person.home_postal_code:
+        return person.home_postal_code
+    
+    address = ""
+    if person.home_street:
+        address += person.home_street
+    elif person.home_neighborhood:
+        if address:
+            address += SMS_ADDRESS_SEP
+        address += person.home_neighborhood 
+    
+    if person.home_city:
+        if address:
+            address += SMS_ADDRESS_SEP
+        address += person.home_city
+    if person.home_state:
+        if address:
+            address += SMS_ADDRESS_SEP
+        address += person.home_state
+    
+    # GFR: I think country is probably useless since there's one app per country.
+    return address
+
 def format_info(person) :
     result=""
-    if person.full_name:
-        result += person.full_name.split("\n")[0] + SMS_FIELD_SEP
-    else:
-        if person.first_name:
-            result += person.first_name + SMS_FIELD_SEP
-        if person.last_name:
-            result += person.last_name + SMS_FIELD_SEP
+    
+    result += format_name(person) + SMS_FIELD_SEP
+    
     if person.sex:
         result += person.sex + SMS_FIELD_SEP
+    
     if person.date_of_birth:
         result += person.date_of_birth + SMS_FIELD_SEP
     elif person.age:
         result += person.age + SMS_FIELD_SEP
 
+    result += format_home_address() + SMS_FIELD_SEP
+    
+    # person.other might have the description of the person
+    result += chop(person.other, 10)
+     
     person.found_status = None
     person.found_location = None
     person.found_contact = None
