@@ -105,9 +105,6 @@ class CreateHandler(webapp.RequestHandler):
 
 
 class PostHandler(webapp.RequestHandler):
-    def get(self):
-        self.fetch_task_for_crowdsource()
-
     def post(self):
         if not self.request.get('id'):
             self.update_parsed_message()
