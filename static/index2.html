@@ -20,8 +20,6 @@
     <div id="logo"></div>
 	</div>
 	<div id="main">	
-	    <p> <div id ="please"> Please help us decode this message:
-  </div>
   <div class="header" id="header">
 		<div id="message">
       Loading...
@@ -32,7 +30,6 @@
 		<div class="skip" id="skip"><a href="#"
 		onClick="clearID();sendRequest(true);return false;">Skip this one <span id="new_count"></span></a></div>
   </div>
-	    </p>
 		<div class="form-field">
 	    <form id="dataform">
 		  <input type="hidden" name="id" id="id" value>
@@ -129,7 +126,7 @@ alt="Powered by Google App Engine" /></a>
 		  document.getElementById('first_name');
 		if (!last_name || !first_name || last_name.value
 		  == ''  || first_name.value == '') {
-		alert("Please enter both family name and the givenname");
+		alert("Please enter both family name and given name");
 		return false;
 		}
 		return true;
@@ -176,17 +173,21 @@ alt="Powered by Google App Engine" /></a>
   if (data == "{}") {
     document.getElementById('message').innerHTML = 'No more messages to be decoded, thanks! :-)';
     document.getElementById('timestamp').innerHTML = '';
-    document.getElementById('please').style.display = 'none';
     document.getElementById('submit').disabled = true;
     document.getElementById('spam').style.display = 'none';
     document.getElementById('skip').style.display = 'none';
   } else {
     a = JSON.parse(data);
 	  document.getElementById('timestamp').innerHTML = a.timestamp;
-	  var strings = a.message.split(" ");
+    var delim_re = /([^a-zA-Z0-9]+)/;
+	  var strings = a.message.split(delim_re);
     var message = "";
     jQuery.each(strings, function(i, val) {
-      message += "<span>" + val + "</span> ";
+      if(val.match(delim_re)) {
+        message += "<div style=\"display:inline; margin-left: -3px;\">" + val + "</div>";
+      } else if(val.length > 0) {
+        message += "<span>" + val + "</span> ";
+      }
     });
     document.getElementById('message').innerHTML = message;
     if(a.new_message_count !== undefined) {
