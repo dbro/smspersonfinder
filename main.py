@@ -89,11 +89,8 @@ class CreateHandler(webapp.RequestHandler):
             upload_to_personfinder(person)
 
             fields = split_message_to_fields(message)
-            reply = 'Added to Person Finder.\nName: %s %s\nStatus: %s\nDesc: %s' % \
-                                                               (fields['person_first_name'],
-                                                               fields['person_last_name'],
-                                                               fields['note_text'],
-                                                               fields['person_other'])
+            reply = 'Added to Person Finder.\nName: %s %s' % (fields['person_first_name'],
+                                                               fields['person_last_name'])
             # limit to 140
             reply = reply[0:139]
         except:
