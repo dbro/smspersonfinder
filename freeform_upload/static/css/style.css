@@ -121,3 +121,17 @@ A:visited {text-decoration: none}
 A:active {text-decoration: none}
 A:hover {text-decoration: none; color:#808080;}
 
+#message span {
+  padding: 3px;
+  border: 1px dotted #aaa;
+  cursor: move;
+}
+#message span.used {
+  color: #aa5;
+}
+#message span:hover {
+  color: #888;
+}
+input.selected {
+  border: 3px solid #cc6;
+}

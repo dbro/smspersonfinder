@@ -1,11 +1,15 @@
 <html>
   <head>
   <link rel="stylesheet" href="css/style.css" />
-<script type="text/javascript"
-  src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.13.custom.css" />
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script type="text/javascript" src="js/fast_input.js"></script>
+  <script type="text/javascript" src="js/jquery-ui-1.8.13.custom.min.js"></script>
+  <!--<script type="text/javascript" src="js/jquery.formalize.js"></script>-->
+  <script type="text/javascript" src="js/underscore-min.js"></script>
  
   </head>
-  <body onLoad="sendRequest(false);">
+  <body onLoad="sendRequest(true);">
 
 	<div id="mainheader">
 		<div id="welcome"> Welcome to the personfinder app. </div>
@@ -18,10 +22,10 @@
 		<div id="message">
 		</div>
 		<div id="timestamp" class="timestamp"></div>
-		<div class="spam"><a href=""
-		onClick="sendRequest(true);return false;">Mark as spam</a><br/></div>
-		<div class="skip"><a href=""
-		onClick="sendRequest(false);return false;">Skip this one.</a></div>
+		<div class="spam"><a href="#"
+    onClick="sendRequest(false);return false;">Mark as spam</a><br/></div>
+		<div class="skip"><a href="#"
+		onClick="clearID();sendRequest(true);return false;">Skip this one.</a></div>
   </div>
 	    </p>
 		<p>
@@ -44,7 +48,7 @@
 	      <br/>
 			  <label>Current Location:</label>	<div class="hint">Hint</div>
  <input type="text" name="last_known_location" size="40" value=""> <br/>
-	     Status:</br>   <select name="status" id="status"
+	     Status:<br/>   <select name="status" id="status"
   onchange="togglePersonallySeen();">
 		  
     <option value="" selected="selected">Unspecified</option>
@@ -89,12 +93,15 @@
 		  </table>
 		  <label><input type="submit" value="Submit"
 		  name="submit" onclick="if (checkMandatoryFields()) {
-		  sendRequest(false); return false;}"></label>
+		  sendRequest(true);}return false;"></label>
 	    </form>
 		</div>
 	  
 	</div>
 	 <script type="text/javascript">
+    function clearID() {
+      document.getElementById('id').value = "";
+    }
 	        function setSpam() {
 	          document.getElementById('parsable').value = false;
 	        }
@@ -135,24 +142,22 @@
 	console.log(argu);
 	}
 	
-	function sendRequest(is_unparsable) {
+	function sendRequest(is_parseable) {
 	 console.log('loggig');
-	 formdata = $("#dataform");
-	 if (is_unparsable) {
-	 formdata["parseable"] = "false";
-	} else {
-	 formdata["parseable"] = "true";
-	}
-        // $.post("http://smspersonfinder.appspot.com/post",
-        $.post("http://localhost:8080/post",
-	formdata.serialize(),
+         $.post("http://smspersonfinder.appspot.com/post",
+        //$.post("http://localhost:8080/post",
+	$("#dataform").serialize() + "&parseable=" + is_parseable,
 	function(data) {
 	document.getElementById('dataform').reset();
 	a = JSON.parse(data);
 	document.getElementById('timestamp').innerHTML = a.timestamp;
 	var strings = a.message.split(" ");
-	jQuery.each
-	document.getElementById('message').innerHTML = a.message;
+  var message = "";
+  jQuery.each(strings, function(i, val) {
+    message += "<span>" + val + "</span> ";
+  });
+	document.getElementById('message').innerHTML = message;
+  message_init();
 
 	document.getElementById('id').value = a.id;
 	}

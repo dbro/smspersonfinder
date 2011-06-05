@@ -1,6 +1,25 @@
+window.focused_input = false;
+window.drag_just_happened = false;  // Because mouseout happens after drag.
+function message_init() {
+  $('#message span').each(function(i, elt) {
+    $(elt).click(function(evt) {
+      if(drag_just_happened) {
+        drag_just_happened = false;
+        return;
+      }
+      var word = $(evt.currentTarget).text();
+      var cur_val = $(focused_input).val();
+      if(cur_val === undefined) {  // No focused input
+        return;
+      }
+      var sep = cur_val.length > 0 ? ' ' : '';
+      $(evt.currentTarget).addClass('used');
+      $(focused_input).val(cur_val + sep + word);
+    });
+    $(elt).draggable();
+  });
+}
 $(function() {
-  var focused_input = false;
-  var drag_just_happened = false;  // Because mouseout happens after drag.
   $('.form-field input').each(function(i, elt) {
     $(elt).bind('focus', _.bind(function() {
       if(focused_input) {
@@ -31,21 +50,5 @@ $(function() {
       }
     });
   });
-  $('#message span').each(function(i, elt) {
-    $(elt).click(function(evt) {
-      if(drag_just_happened) {
-        drag_just_happened = false;
-        return;
-      }
-      var word = $(evt.currentTarget).text();
-      var cur_val = $(focused_input).val();
-      if(cur_val === undefined) {  // No focused input
-        return;
-      }
-      var sep = cur_val.length > 0 ? ' ' : '';
-      $(evt.currentTarget).addClass('used');
-      $(focused_input).val(cur_val + sep + word);
-    });
-    $(elt).draggable();
-  });
+  message_init();
 });
