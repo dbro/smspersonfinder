@@ -20,7 +20,7 @@ function message_init() {
   });
 }
 $(function() {
-  $('.form-field input').each(function(i, elt) {
+  $('.form-field input, .form-field textarea').each(function(i, elt) {
     $(elt).bind('focus', _.bind(function() {
       if(focused_input) {
         $(focused_input).removeClass('selected');
