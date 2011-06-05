@@ -25,6 +25,7 @@ import datetime
 import urllib
 import wsgiref.handlers
 from communication import upload_to_personfinder
+import logging
 
 class Message(db.Model):
   """Messages with status information"""

@@ -42,6 +42,7 @@ def upload_to_personfinder(sms):
     key = "punsOMMYMAI27tkr"
     action = "write"
     namespace = "rhok1.com"
+    sms = str(sms)
 
     fields = sms.split('#');
     p = Person()
@@ -70,6 +71,9 @@ def upload_to_personfinder(sms):
       url, data, { 'Content-Type': 'application/xml' })
       #url, fmtd_msg.serializeAsPFIF(), { 'Content-Type': 'application/xml' })
     result = urllib2.urlopen(req).read()
-    print result
+    #print result
     return result
 
+if __name__ == "__main__":
+    sms = 'Something#Jonathan#No comments.#Note.'
+    upload_to_personfinder(sms)
