@@ -7,7 +7,7 @@ TROPO = False
 # Set up payload
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 source = currentCall.callerID if TROPO else 'debug source'
-message = currentCall.initialText if TROPO else 'Foo#johnny#pan on head#alive'
+message = currentCall.initialText if TROPO else 'tinhead#mister#moths in mouth#alive'
 
 # Build query string
 q = {'source': source,
@@ -17,8 +17,10 @@ q = {'source': source,
 query = urllib.urlencode(q)
 
 # Deliver payload
-url="http://localhost:8080/create?%s" % query
-#url="http://smspersonfinder.appspot.com/create?%s" % query
+if TROPO:
+    url="http://smspersonfinder.appspot.com/create?%s" % query
+else:
+    url="http://localhost:8080/create?%s" % query
 if not TROPO:
     print "Opening %s" % url
 resp = urllib.urlopen(url)
@@ -29,7 +31,11 @@ if html:
     print "Success"
     print html
     if TROPO:
-        say('Successfully sent')
+        if "#" not in message:
+            # Send 140 char message for how to use correctly.
+            say("Sent to crowd-source for parsing. Please use last_name#first_name#description#update. Update can be: alive, dead, missing, or anything else.")
+        else:
+            say('Successfully sent')
 else:
     print "Failure"
     if TROPO:
