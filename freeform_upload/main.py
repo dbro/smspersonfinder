@@ -27,8 +27,8 @@ import urllib
 import wsgiref.handlers
 import logging
 import search 
-from communication import parse_formatted_message,upload_to_personfinder
 import models
+from communication import parse_formatted_message,upload_to_personfinder
 
 class Message(db.Model):
     """Messages with status information"""
@@ -40,7 +40,7 @@ class Message(db.Model):
     parsed_message = db.StringProperty(multiline=True)
 
     def __str__(self):
-        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
+        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key().id(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
 class Accumulator(db.Model):
   name = db.StringProperty()
@@ -105,12 +105,10 @@ class CreateHandler(webapp.RequestHandler):
 
 
 class PostHandler(webapp.RequestHandler):
-    def get(self):
-        self.fetch_task_for_crowdsource()
-
     def post(self):
         if not self.request.get('id'):
             self.update_parsed_message()
+        self.fetch_task_for_crowdsource()
         logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
@@ -129,7 +127,7 @@ class PostHandler(webapp.RequestHandler):
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
                 'errorstatus' : 'ok',
-                'id' : repr(r.key())
+                'id' : repr(r.key().id())
             }
             r.status_timestamp = datetime.datetime.now()
             r.put()
@@ -144,7 +142,13 @@ class PostHandler(webapp.RequestHandler):
         p = models.Person()
         for attr in models.PFIF_13_PERSON_ATTRS:
             setattr(p, attr, self.request.get(attr, None))
-        self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
+        for attr in models.PFIF_13_NOTE_ATTRS:
+            if self.request.get(attr):
+                if not p.notes:
+                    p.notes.append(models.Note())
+                setattr(p.notes[0], attr, self.request.get(attr)
+            
+        logging.debug('Person: %s' % repr(p))
 
 
 class SearchHandler(webapp.RequestHandler):
