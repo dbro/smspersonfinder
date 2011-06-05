@@ -160,8 +160,8 @@
   }
 	function sendRequest(is_parseable) {
     document.body.style.cursor = 'wait';
-       //$.post("http://smspersonfinder.appspot.com/post",
-       $.post("http://localhost:8080/post",
+       $.post("http://smspersonfinder.appspot.com/post",
+       //$.post("http://localhost:8080/post",
 	$("#dataform").serialize() + "&parseable=" + is_parseable,
 	function(data) {
 	document.getElementById('dataform').reset();
