@@ -62,9 +62,9 @@ if result:
     print "Success"
     print result
     if TROPO:
-        say(message)
+        say(result)
     else:
-        send_sms(message)
+        send_sms(result)
 else:
     print "Failure"
     if TROPO:
