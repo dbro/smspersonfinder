@@ -13,8 +13,10 @@
   <body onLoad="sendRequest(true);">
 
 	<div id="mainheader">
-		<div id="welcome"> Welcome to the personfinder app. </div>
-		<div id="description"> Below is a text message from the disaster area. Help us complete our database by filling out as many of the fields below as possible. <b>Bolded</b> items are required. </div>
+		<div id="welcome"> Help people in Mountain View find each other<br>with SMS Person Finder</div>
+		<div id="description"> You can help find disaster victims by translating SMS messages from people in the disaster area. Below is an actual text message that needs to be entered into the Google person finder database. Please read this SMS message and copy the correct information into the fields in the form. <b>Bolded</b> items are required. </div>
+		<div id="description"> <br>To upload an SMS, send it to +1(415) 766-0775 </div>
+		<div id="description"> To search for a person, send a message to +1(408) 915-6134 </div>
     <div id="logo"></div>
 	</div>
 	<div id="main">	
@@ -106,7 +108,12 @@
       onclick="if (checkMandatoryFields()) {addToPersonFinder(this);}return false;">
 	    </form>
 		</div>
-	  
+	    <div>
+            <a href="http://person-finder.appspot.com">Google person finder</a>
+            <a href="http://code.google.com/appengine"><img src="http://code.google.com/appengine/images/appengine-noborder-120x30.gif" 
+alt="Powered by Google App Engine" /></a>
+            <a href="http://tropo.com"><img src="images/tropo-logo-sm-footer.png" alt="Powered by Tropo"></a>
+        </div>
 	</div>
 	 <script type="text/javascript">
     function clearID() {
