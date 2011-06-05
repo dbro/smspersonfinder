@@ -201,3 +201,6 @@ input#submit {
   margin-left: 10px;
   margin-bottom: 10px;
 }
+div#bottom_logos a {
+  margin-right: 15px;
+}
