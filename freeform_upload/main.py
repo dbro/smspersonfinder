@@ -18,6 +18,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext import db
 from google.appengine.ext import db
+from django.utils import simplejson
 
 import logging
 import cgi
@@ -60,27 +61,56 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('trying to use formatted parsing method')
             upload_to_personfinder(time, source, message)
         except:
-        logging.debug('falling back on crowdsource parsing method')
-        self.send_to_crowdsource(time, source, message)
+            logging.debug('falling back on crowdsource parsing method')
+            self.create_task_for_crowdsource(time, source, message)
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
-  def post(self):
-    name = self.request.get("name")
-    
+    def create_task_for_crowdsource(self, time, source, message):
+        # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
+        message = Message(message_timestamp=time,
+            source_phone_number=source,
+            message=message,
+            status='NEW')
+        message.put()
 
-  def send_to_crowdsource(self, time, source, message):
-    # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
-    message = Message(message_timestamp=time,
-                  source_phone_number=source,
-                  message=message,
-                  status='NEW')
-    message.put()
+class PostHandler(webapp.RequestHandler):
+    def get(self):
+        self.fetch_task_for_crowdsource()
+
+    def post(self):
+        logging.debug('falling back on crowdsource parsing method')
+
+    def fetch_task_for_crowdsource(self):
+        # get the oldest new message
+        q = Message.all()
+        q.filter("status =", "NEW")
+        q.order("status_timestamp")
+        result = q.fetch(1)
+
+        # update the status of the message with the current timestamp
+        response = {}
+        if len(result) > 0:
+            r = result[0]
+            r.status_timestamp = datetime.datetime.now()
+            r.put()
+        else:
+            # TODO: properly deal with empty result set
+            logging.debug('no messages available for human parsing')
+            response.message = r.message
+            response.timestamp = r.message_timestamp
+            response.errorstatus = 'ok'
+            response.id = r.key()
+
+        # respond
+        self.response.out.write(simplejson.dumps(response))
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
-    application = webapp.WSGIApplication([('/', MainHandler),
-        ('/create', CreateHandler)], 
+    application = webapp.WSGIApplication([
+        ('/', MainHandler),
+        ('/create', CreateHandler), 
+        ('/post', PostHandler)], 
         debug=True)
     util.run_wsgi_app(application)
 
