@@ -169,6 +169,8 @@ class PostHandler(webapp.RequestHandler):
                     n = models.Note()
                     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
                     n.author_name = message.source_phone_number
+                    n.text = "raw message text received (%s) : %s" % 
+                        (datetime.datetime.isoformat(message.time,' '), message.message)
                     p.notes.append(n)
                 setattr(p.notes[0], attr, self.request.get(attr))
 
