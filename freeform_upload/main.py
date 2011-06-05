@@ -57,7 +57,7 @@ class CreateHandler(webapp.RequestHandler):
     try:
       upload_to_personfinder(message)
     except:
-      send_to_crowdsource(time, source, message)
+      self.send_to_crowdsource(time, source, message)
 
     self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
