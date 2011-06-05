@@ -1,0 +1,75 @@
+body {
+	font:14px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+	color:#424242;
+	margin-top:70px;
+	margin-left:130px;
+}
+
+div {
+}
+
+div#welcome {
+	font:30px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+	color:grey;
+	font-style:italic;
+}
+
+div#main {
+	margin-top:45px;
+}
+
+table {
+	
+}
+td {
+	vertical-align:top;
+}
+
+.column {
+	font:14px 'Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+	width:300px;
+}
+
+div#message {
+	font:20px "Palatino Linotype", "Book Antiqua", Palatino, serif;
+	margin-top:25px;
+	margin-left:50px;
+	margin-bottom:10px;
+}
+
+div#decode {
+	margin-top:30px;
+}
+
+input {
+	width:250px;
+	margin-right:80px;
+}
+
+textarea {
+	width:250px;
+}
+
+.form-field {
+	border-color:lightgrey;
+	margin-top:7px;
+	margin-left:50px;
+	margin-right:700px;
+	margin-bottom:20px;
+}
+
+.form-field label {
+	float:left;
+	width:250px;
+}
+
+.seen {
+	display:none;
+}
+
+A {color:#FF6666;}
+A:link {text-decoration: none}
+A:visited {text-decoration: none}
+A:active {text-decoration: none}
+A:hover {text-decoration: none; color:#808080;}
+

@@ -1,0 +1,474 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Strict//EN"> 
+<html>
+<head> 
+  <meta name="keywords" content="person finder, people finder, person, people, crisis, survivor, family"> 
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"> 
+  <meta http-equiv="content-language" content="en"><!--TODO: depends--> 
+  
+  <title> 
+    Google Person Finder: Crowd process SMS messages 
+  </title> 
+    <link type="text/css" rel="stylesheet" href="css/stolen.css"> 
+  </head> 
+
+    <h1> 
+        Person Finder: Crowd process SMS messages 
+    </h1> 
+    <div class="clear"></div> 
+
+<form method="post" enctype="multipart/form-data" action="/create"> 
+<table class="create" cellpadding="0" cellspacing="0"> 
+  <tr class="columns"> 
+    <td> 
+      <table class="person column" cellpadding="0" cellspacing="0"> 
+        <tr> 
+          <td> 
+            <h2> 
+              
+                Identify who you have information about
+              
+            </h2> 
+            <table class="person input" cellpadding="0" cellspacing="0"> 
+              <tr> 
+                <td class="name section"> 
+                  <h3 class="mandatory"> 
+                    Name (required)
+                  </h3> 
+                  <div class="hint"> 
+                    What is this person's name?
+                  </div> 
+                  <table class="fields"> 
+                    
+                      <tr> 
+                        <td class="label"> 
+                          <label for="last_name" class="mandatory"> 
+                            Family name:
+                          </label> 
+                        </td> 
+                        <td> 
+                          <input name="last_name" id="last_name" size="20"
+                              value="Smith"
+                              autocomplete="off"> 
+                        </td> 
+                      </tr> 
+                    
+                      <tr> 
+                        <td class="label"> 
+                          <label for="first_name" class="mandatory"> 
+                            
+                              Given name:
+                            
+                          </label> 
+                        </td> 
+                        <td> 
+                          <input name="first_name" id="first_name" size="20"
+                              value="John"
+                              autocomplete="off"> 
+                        </td> 
+                      </tr> 
+                    
+                    
+                      
+                        <tr> 
+                          <td class="label"> 
+                            <label for="alternate_last_names"> 
+                              Alternate family names:
+                            </label> 
+                          </td> 
+                          <td> 
+                            <input name="alternate_last_names"
+                                id="alternate_last_names" size="20"
+                                value=""
+                                autocomplete="off"> 
+                          </td> 
+                        </tr> 
+                      
+                        <tr> 
+                          <td class="label"> 
+                            <label for="alternate_first_names"> 
+                              
+                                Alternate given names:
+                              
+                            </label> 
+                          </td> 
+                          <td> 
+                            <input name="alternate_first_names"
+                                id="alternate_first_names" size="20"
+                                value=""
+                                autocomplete="off"> 
+                          </td> 
+                        </tr> 
+                      
+                    
+                  </table> 
+                </td> 
+              </tr> 
+              <tr> 
+                <td class="physical section"> 
+                  <h3> 
+                    Physical characteristics
+                  </h3> 
+                  <div class="hint"> 
+                    Describe the physical characteristics of this person.
+                  </div> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="sex">Sex:</label> 
+                      </td> 
+                      <td> 
+                        <select name="sex" id="sex"> 
+                          <option value="" selected="yes"></option> 
+                          <option value="female">female</option> 
+                          <option value="male">male</option> 
+                          <option value="other">other</option> 
+                        </select> 
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="age">Age:</label> 
+                        <div class="hint">Number or range (e.g. 20-30)</div> 
+                      </td> 
+                      <td> 
+                        <input name="age" id="age" size="10"
+                            autocomplete="off"> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                </td> 
+              </tr> 
+              <tr> 
+                <td class="address section"> 
+                  <h3> 
+                    Home Address
+                  </h3> 
+                  <div class="hint"> 
+                    Where is this person from?
+                  </div> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="home_street"> 
+                          Street name:
+                        </label> 
+                        <div class="hint">Street name only, no number</div> 
+                      </td> 
+                      <td> 
+                        <input name="home_street" id="home_street" size="20"
+                            value=""
+                            autocomplete="off"> 
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td class="label"> 
+
+                        <label for="home_neighborhood">Neighborhood:</label> 
+                      </td> 
+                      <td> 
+                        <input name="home_neighborhood" id="home_neighborhood"
+                            value=""
+                            size="20" autocomplete="off"> 
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="home_city">City:</label> 
+                      </td> 
+                      <td> 
+                        <input name="home_city" id="home_city"
+                            value=""
+                            size="20" autocomplete="off"> 
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="home_state"> 
+                          Province or state:
+                        </label> 
+                      </td> 
+                      <td> 
+                        <input name="home_state" id="home_state" size="10"
+                            value=""
+                            autocomplete="off"> 
+                      </td> 
+                    </tr> 
+                    
+                      <tr> 
+                        <td class="label"> 
+                          <label for="home_postal_code"> 
+                            Postal or zip code:
+                          </label> 
+                        </td> 
+                        <td> 
+                          <input name="home_postal_code" id="home_postal_code"
+                              value=""
+                              size="10" autocomplete="off"> 
+                        </td> 
+                      </tr> 
+                    
+                    </table> 
+                  </td> 
+                </tr> 
+                <tr> 
+                  <td class="description section"> 
+                    <h3><label for="description"> 
+                      Description
+                    </label></h3> 
+                    <div class="hint"> 
+                      Describe how to identify this person.
+                    </div> 
+                    <table class="fields"> 
+                      <tr> 
+                        <td> 
+                          <textarea name="description" id="description"
+                            cols=40 rows=5></textarea> 
+                        </td> 
+                      </tr> 
+                    </table> 
+                  </td> 
+                </tr> 
+            </table> 
+          </td> 
+        </tr> 
+      </table> 
+    </td> 
+
+    
+      <td> 
+        
+
+
+
+      
+      <input type="hidden" name="add_note" value="yes"> 
+      <input type="hidden" name="id" value=""> 
+      
+
+      <table class="create note column" cellpadding="0" cellspacing="0"> 
+        <tr> 
+          <td> 
+            <h2> 
+              
+              Tell us the status of this person
+              
+            </h2> 
+            <table class="note input" cellpadding="0" cellspacing="0"> 
+              
+              <tr> 
+                <td class="status section"> 
+                  <h3> 
+                    Status of this person
+                  </h3> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td> 
+                        <select id="status" name="status" value=""> 
+                          
+                            <option value=""
+                                
+                                  selected='selected'
+                                > 
+                              Unspecified
+                            </option> 
+                          
+                            <option value="information_sought"
+                                > 
+                              I am seeking information
+                            </option> 
+                          
+                            <option value="is_note_author"
+                                > 
+                              I am this person
+                            </option> 
+                          
+                            <option value="believed_alive"
+                                > 
+                              I have received information that this person is alive
+                            </option> 
+                          
+                            <option value="believed_missing"
+                                > 
+                              I have reason to think this person is missing
+                            </option> 
+                          
+                            <option value="believed_dead"
+                                > 
+                              I have received information that this person is dead
+                            </option> 
+                          
+                        </select> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                </td> 
+              </tr> 
+              
+              <tr> 
+                <td class="mandatory text section"> 
+                  <h3> 
+                    Message (required)
+                  </h3> 
+                  <div class="hint"> 
+                    
+                      A message for this person or others seeking this person
+                    
+                  </div> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td> 
+                        <textarea name="text" id="text" cols=40 
+                          rows=5></textarea> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                </td> 
+
+              </tr> 
+              
+              <tr> 
+                <td class="location section"> 
+                  <h3> 
+                    Last known location
+                  </h3> 
+                  <div class="hint"> 
+                    Type an address or open the map below and indicate the location by moving the pin.
+                  </div> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td> 
+                        <input name="last_known_location"
+                            id="last_known_location" size="40"
+                            value="" /> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                  
+                    <table class="map-container"> 
+                      <tr> 
+                        <td> 
+                          <div id="map_canvas_show_link" style="display: none"> 
+                            <a href='#' onclick="toggle('map_canvas', document.getElementById('last_known_location').value); return false;" > 
+                            Show Map
+                            </a> 
+                          </div> 
+                          <div id="map_canvas_hide_link" style="display: none"> 
+                            <a href='#' onclick="toggle('map_canvas', document.getElementById('last_known_location').value); return false;" > 
+                            Hide Map
+                            </a> 
+                          </div> 
+                          <script type="text/javascript"> 
+                            ToggleMapLink('map_canvas');
+                          </script> 
+                          <div id="map_canvas" class="hidden map"> 
+                          </div> 
+                        </td> 
+                      </tr> 
+                    </table> 
+                  
+                </td> 
+              </tr> 
+              <tr> 
+                <td class="found section"> 
+                  <h3 class="mandatory"> 
+                    Have you personally talked with this person AFTER the disaster? (required)
+                  </h3> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td class="instructions" colspan="2"> 
+                        <div> 
+                          <input type="radio" name="found" value="yes"
+                              id="found_yes" onchange="update_contact()"
+                              onclick="update_contact()"
+                              > 
+                          <label class="option" for="found_yes"> 
+                            Yes
+                          </label> 
+                        </div> 
+                        <div> 
+                          <input type="radio" name="found" value="no"
+                              id="found_no" onchange="update_contact()"
+                              onclick="update_contact()"
+                              
+                                checked="checked"
+                              > 
+                          <label class="option" for="found_no"> 
+                            No
+                          </label> 
+                        </div> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                </td> 
+              </tr> 
+              <tr style="display: none" id="contact_row"> 
+                <td class="contact section"> 
+                  <h3> 
+                    Missing person's current contact information
+                  </h3> 
+                  <div class="hint"> 
+                    How can this person be reached now?
+                  </div> 
+                  <table class="fields"> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="phone_of_found_person"> 
+                          Phone number:
+                        </label> 
+                      </td> 
+                      <td> 
+                        <input name="phone_of_found_person"
+                            id="phone_of_found_person" size="20"
+                            value="" /> 
+                      </td> 
+                    </tr> 
+                    <tr> 
+                      <td class="label"> 
+                        <label for="email_of_found_person"> 
+                          E-mail address:
+                        </label> 
+                      </td> 
+                      <td> 
+                        <input name="email_of_found_person"
+                            id="email_of_found_person" size="20"
+                            value="" /> 
+                      </td> 
+                    </tr> 
+                  </table> 
+                </td> 
+              </tr> 
+              
+              
+              <tr> 
+                <td align=left class="submit"> 
+                  <input type="submit"
+                    value="Save this record"
+                    onclick="return validate_fields()"> 
+                  
+                  <div id="mandatory_field_missing"
+                    class="mandatory" style="display: none"> 
+                    Please fill in all the required fields.
+                  </div> 
+                  <div id="status_inconsistent_with_found"
+                    class="mandatory" style="display: none"> 
+                    The status you selected indicates that you are this person.  If this is true, please also select 'Yes' to indicate that you have contacted this person.
+                  </div> 
+                </td> 
+              </tr> 
+            </table> 
+          </td> 
+        </tr> 
+      </table> 
+
+      </td> 
+    
+  </tr> 
+</table> 
+</form> 
+  <div> 
+  PLEASE NOTE: All data entered by you will become publicly available, and viewable and usable by anyone.  Data in the Person Finder includes data entered by users and data entered based upon publicly available information and certain other sources.  Google does not review or verify the accuracy of the data.
+  </div> 
+
+</body> 
+
+</html> 
