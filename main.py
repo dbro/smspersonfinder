@@ -106,8 +106,8 @@ class CreateHandler(webapp.RequestHandler):
 
 class PostHandler(webapp.RequestHandler):
     #Added by Dan for testing
-    #def get(self):
-    #    self.post()
+    def get(self):
+        self.post()
 
     def post(self):
         logging.debug('post handler post method called')
