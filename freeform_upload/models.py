@@ -46,7 +46,6 @@ PFIF_13_NOTE_ATTRS = (
     "status",
 )
 
-# TODO(amantri): rename Person to Message or similar
 class Person:
     def __init__(self, *args, **kwargs):
         for attr in PFIF_13_PERSON_ATTRS:

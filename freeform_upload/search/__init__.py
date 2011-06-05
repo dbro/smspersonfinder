@@ -28,9 +28,26 @@ def name_search(name, persons):
     return found_persons
 
 def format_info(person) :
-    return person.first_name + person.last_name
+   result=""
+   if person.full_name:
+       result += person.full_name + " "
+   else:
+      if person.first_name:
+         result += person.first_name + " "
+      if person.last_name:
+         result += person.last_name + " "
+   if person.sex:
+      result += person.sex + " "
+   if person.date_of_birth:
+      result += person.date_of_birth + " "
+   elif person.age:
+      result += person.age + " "
 
-def print_full_info(person) :
+   result += person.notes.pop().last_known_location
+
+   return result
+
+def print_person_info(person):
     print "person_record_id..%s" % person.person_record_id
     print "entry_date........%s" % person.entry_date
     print "expiry_date.......%s" % person.expiry_date
@@ -55,6 +72,22 @@ def print_full_info(person) :
     print "other.............%s" % person.other
     print "home_country......%s" % person.home_country
 
+def print_note_info(note):
+    print "note_record_id..............%s" % note.note_record_id
+    print "person_record_id............%s" % note.person_record_id
+    print "linked_person_record_id.....%s" % note.linked_person_record_id
+    print "entry_date..................%s" % note.entry_date
+    print "author_name.................%s" % note.author_name
+    print "author_email................%s" % note.author_email
+    print "author_phone................%s" % note.author_phone
+    print "source_date.................%s" % note.source_date
+    print "found.......................%s" % note.found
+    print "email_of_found_person.......%s" % note.email_of_found_person
+    print "phone_of_found_person.......%s" % note.phone_of_found_person
+    print "last_known_location.........%s" % note.last_known_location
+    print "text........................%s" % note.text
+    print "status......................%s" % note.status
+
 def handle(message):
     query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
     data = urllib2.urlopen("%s%s" % (host, query_uri)).read()
@@ -62,9 +95,13 @@ def handle(message):
     (persons, notes) = from_xml(dom1)
     found_persons = name_search(message, persons)
     persons_str = ""
-
+    count = 0
     if found_persons:
         for person in found_persons:
+           #add a new line after each person entry in the result
+            if count == 0:
+               persons_str += "\n"
             persons_str += format_info(person)
+            count += 1
 
     return persons_str
