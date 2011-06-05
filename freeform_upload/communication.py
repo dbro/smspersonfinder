@@ -56,6 +56,7 @@ def upload_to_personfinder(timestr, source, message):
       dt + datetime.timedelta(12 * 30))
 
     p.author_name = source
+    p.source_name = source
     p.first_name = fields[1]
     p.last_name = fields[0]
     p.description = fields[2]
@@ -63,6 +64,7 @@ def upload_to_personfinder(timestr, source, message):
     n = Note()
     n.note_record_id = namespace + '/' + 'note.123456'
     n.author_name = source
+    p.source_name = source
     n.source_date = p.entry_date
     n.text = fields[3]
     p.add_note(n)

@@ -7,7 +7,7 @@ TROPO = False
 # Set up payload
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 source = currentCall.callerID if TROPO else 'debug source'
-message = currentCall.initialText if TROPO else 'debug message'
+message = currentCall.initialText if TROPO else 'appleseed#johnny#pan on head#alive'
 
 # Build query string
 q = {'source': source,
