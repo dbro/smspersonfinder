@@ -1,7 +1,14 @@
 #!/usr/bin/env python
+# for send_to_server
 import urllib
+# for upload_to_server
+from models import *
+from util import *
 import datetime, time, calendar
 import vendor.rfc3339
+import urllib2
+
+on_tropo = False
 
 def send_to_server(time, source, message):
     # make a dictionary of search parameters
@@ -29,18 +36,44 @@ def send_to_server(time, source, message):
         else:
             print "Failure"
 
-if __name__ == "__main__":
-    on_tropo = False
+def build_personfinder_url(action, domain, key):
+    """
+    Action is write/note/person
+    """
+    url = "https://%s.googlepersonfinder.appspot.com/api/%s?key=%s" % (domain, action, key)
+    return url
 
+def upload_to_personfinder(sms):
+    #sms = 'Koff#Jonathan#No comments.#Note.'
+    domain = "rhok"
+    key = "punsOMMYMAI27tkr"
+    action = "write"
+    namespace = "rhok1.com"
+
+    fields = sms.split('#');
+    p = Person()
+    p.person_record_id = namespace + '/' + 'person.123456';
     now = vendor.rfc3339.now()
-    time = vendor.rfc3339.datetimetostr(now)
-    source = currentCall.callerID if on_tropo else "14154885884"
-    message = currentCall.initialText if on_tropo else "koff#jon#brown shirt#alive"
+    p.entry_date = vendor.rfc3339.datetimetostr(now)
+    p.expiry_date = vendor.rfc3339.datetimetostr(
+      now + datetime.timedelta(12 * 30))
+    p.author_name = 'Unknown'
+    p.first_name = fields[1]
+    p.last_name = fields[0]
+    p.description = fields[2]
 
-    send_to_server(time, source, message)
-    if "#" not in message:
-        # Send to server for crowdsource uploading
-        send_to_server(time, source, message)
-    else:
-        # Put code here to upload directly to PersonFinder
-        pass
+    n = Note()
+    n.note_record_id = namespace + '/' + 'note.123456'
+    n.author_name = 'Unknown'
+    n.source_date = p.entry_date
+    n.text = fields[3]
+    p.add_note(n)
+    
+    url = build_personfinder_url(action, domain, key)
+    #fmtd_msg = message.FormattedMessage(namespace, sms)
+
+    data = to_xml(persons=[p]).toxml()
+    req = urllib2.Request(
+      url, data, { 'Content-Type': 'application/xml' })
+      #url, fmtd_msg.serializeAsPFIF(), { 'Content-Type': 'application/xml' })
+    print urllib2.urlopen(req).read()
