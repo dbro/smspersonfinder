@@ -107,8 +107,7 @@ def upload_to_personfinder(person):
       url, data, { 'Content-Type': 'application/xml' })
     result = None
     result = urllib2.urlopen(req).read()
-    logging.debug('req: %s\ne: %s' % (req, e))
-      
+
     return result
 
 if __name__ == "__main__":
