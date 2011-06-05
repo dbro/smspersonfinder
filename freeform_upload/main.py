@@ -25,8 +25,9 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-from communication import upload_to_personfinder
+from communication import parse_formatted_message,upload_to_personfinder
 import logging
+import search 
 
 class Message(db.Model):
     """Messages with status information"""
@@ -78,10 +79,13 @@ class CreateHandler(webapp.RequestHandler):
         # try to upload to person finder, if it fails (i.e. has no #)
         try:
             logging.debug('trying to use formatted parsing method')
-            upload_to_personfinder(time, source, message)
+            person = parse_formatted_message(time, source, message)
+            upload_to_personfinder(person)
         except:
             logging.debug('falling back on crowdsource parsing method')
-            self.create_task_for_crowdsource(time, source, message)
+            message = self.create_task_for_crowdsource(time, source, message)
+            message.put()
+            atomic_add_to_counter('msg_count', 1)
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
@@ -92,14 +96,16 @@ class CreateHandler(webapp.RequestHandler):
             source_phone_number=source,
             message=message,
             status='NEW')
-        message.put()
-        atomic_add_to_counter('msg_count', 1)
+        return message
 
 class PostHandler(webapp.RequestHandler):
     def get(self):
         self.fetch_task_for_crowdsource()
 
     def post(self):
+        if(len(self.request.get('id')) == 0):
+            return
+        self.update_parsed_message()
         logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
@@ -128,13 +134,34 @@ class PostHandler(webapp.RequestHandler):
 
         # respond
         self.response.out.write(simplejson.dumps(response))
+    
+    def update_parsed_message(self):
+        self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
+
+class SearchHandler(webapp.RequestHandler):
+    def get(self):
+        try:
+            message = self.request.get('message')
+        except (TypeError, ValueError):
+            self.response.set_status(400);
+            self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
+            return
+        
+        result = search.handle(message)
+        self.response.out.write(result)
+        return
+
+    def post(self):
+        self.response.set_status(405);
+        self.response.out.write("POST not supported")
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([
         ('/', MainHandler),
         ('/create', CreateHandler), 
-        ('/post', PostHandler)], 
+        ('/post', PostHandler),
+        ('/search', SearchHandler)],
         debug=True)
     util.run_wsgi_app(application)
 
