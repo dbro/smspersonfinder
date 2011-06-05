@@ -23,7 +23,7 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-
+from communication import upload_to_personfinder
 
 class Message(db.Model):
   """Messages with status information"""
@@ -49,19 +49,25 @@ class CreateHandler(webapp.RequestHandler):
       time = self.request.get('time')
       source = self.request.get('source')
       message = self.request.get('message')
-
-      # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
-      message = Message(message_timestamp=time,
-                    source_phone_number=source,
-                    message=message,
-                    status='NEW')
-      message.put()
-
-      self.response.out.write("<html><body><p>%s</p></body></html>" %
-          message)
     except (TypeError, ValueError):
       self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
+      return False
 
+    # try to upload to person finder, if it fails (i.e. has no #)
+    try:
+      upload_to_personfinder(message)
+    except:
+      send_to_crowdsource(time, source, message)
+
+    self.response.out.write("<html><body><p>%s</p></body></html>" % message)
+
+  def send_to_crowdsource(self, time, source, message):
+    # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
+    message = Message(message_timestamp=time,
+                  source_phone_number=source,
+                  message=message,
+                  status='NEW')
+    message.put()
 
 def main():
   application = webapp.WSGIApplication([('/', MainHandler),
