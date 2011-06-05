@@ -8,6 +8,7 @@ import datetime, time, calendar
 import vendor.rfc3339
 import urllib2
 import time
+import uuid
 
 def send_to_server(time, source, message):
     """Useless, because we're already on the server"""
@@ -38,6 +39,13 @@ def build_personfinder_url(action, domain, key):
     return url
 
 def upload_to_personfinder(timestr, source, message):
+    """Upload to Google Person Finder
+
+    timestr: timestring in the format 2011-05-05 19:30:55
+    source: typically a 10 digital phone number
+    message: Formatted with last#first#description#note
+
+    """
     #message = 'Koff#Jonathan#No comments.#Note.'
     domain = "rhok"
     key = "punsOMMYMAI27tkr"
@@ -46,11 +54,11 @@ def upload_to_personfinder(timestr, source, message):
     timestr = str(timestr)
     message = str(message)
     source = str(source)
+    unique_id = uuid.uuid1()
 
     fields = message.split('#');
     p = Person()
-    p.person_record_id = namespace + '/' + 'person.123456';
-    #now = vendor.rfc3339.now()
+    p.person_record_id = '%s/person.%s' % (namespace, unique_id)
 
     dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
     p.entry_date = vendor.rfc3339.datetimetostr(dt)
@@ -64,7 +72,8 @@ def upload_to_personfinder(timestr, source, message):
     p.description = fields[2]
 
     n = Note()
-    n.note_record_id = namespace + '/' + 'note.123456'
+    #n.note_record_id = namespace + '/' + 'note.123456'
+    n.note_record_id = '%s/note.%s' % (namespace, unique_id)
     n.author_name = source
     p.source_name = source
     n.source_date = p.entry_date
