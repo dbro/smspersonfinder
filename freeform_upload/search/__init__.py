@@ -28,7 +28,23 @@ def name_search(name, persons):
     return found_persons
 
 def format_info(person) :
-    return person.first_name + person.last_name
+   result=""
+   if person.full_name:
+       result += person.full_name + " "
+   else:
+      if person.first_name:
+         result += person.first_name + " "
+      if person.last_name:
+         result += person.last_name + " "
+   if person.sex:
+      result += person.sex + " "
+   if person.date_of_birth:
+      result += person.date_of_birth + " "
+   elif person.age:
+      result += person.age + " "
+
+   print result
+   return result
 
 def print_full_info(person) :
     print "person_record_id..%s" % person.person_record_id
@@ -62,9 +78,13 @@ def handle(message):
     (persons, notes) = from_xml(dom1)
     found_persons = name_search(message, persons)
     persons_str = ""
-
+    count = 0
     if found_persons:
         for person in found_persons:
+           #add a new line after each person entry in the result
+            if count == 0:
+               persons_str += "\n"
             persons_str += format_info(person)
+            count += 1
 
     return persons_str
