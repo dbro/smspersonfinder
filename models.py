@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import logging
+from operator import attrgetter
 from util import add_string_element
 
 PFIF_13_NS = "http://zesty.ca/pfif/1.3"
@@ -82,6 +83,7 @@ class Person:
             
             if e.firstChild is not None:
                 setattr(person, e.localName, e.firstChild.data.strip())
+        person.notes = sorted(person.notes, key=attrgetter('entry_date'))
         return person
 
     def __str__(self):

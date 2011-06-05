@@ -277,7 +277,7 @@ def get_refinement_criteria(persons):
             attr_values += str(v)
         response += attr_values + "]"
         
-    chop(response, SMS_RESULT_MAXLEN)
+    response = chop(response, SMS_RESULT_MAXLEN)
     return response
 
 def handle(message):
@@ -304,3 +304,5 @@ def handle(message):
             return get_refinement_criteria(persons)
 
     return persons_str
+
+print handle('kyle')

@@ -80,6 +80,9 @@ def hot_attrs(persons=[]):
     for person in persons:
         for attr in PERSON_IMPORTANT_ATTRS:
             value = getattr(person, attr)
+            if attr == 'other':
+                other = value.replace('description:', '').strip()
+                value = other[0:10]
             attrs[attr][value] = attrs[attr].get(value, 0) + 1
 
     counts = {}
