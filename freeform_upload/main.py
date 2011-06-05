@@ -18,6 +18,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext import db
 from google.appengine.ext import db
+from django.utils import simplejson
 
 import logging
 import cgi
@@ -60,23 +61,53 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('trying to use formatted parsing method')
             upload_to_personfinder(time, source, message)
         except:
-        logging.debug('falling back on crowdsource parsing method')
-        self.send_to_crowdsource(time, source, message)
+            logging.debug('falling back on crowdsource parsing method')
+            self.create_task_for_crowdsource(time, source, message)
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
-    def send_to_crowdsource(self, time, source, message):
-        # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
+    def create_task_for_crowdsource(self, time, source, message):
+        # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
         message = Message(message_timestamp=time,
             source_phone_number=source,
             message=message,
             status='NEW')
         message.put()
 
+class PostHandler(webapp.RequestHandler):
+    def get(self):
+        self.fetch_task_for_crowdsource()
+
+    def post(self):
+        logging.debug('falling back on crowdsource parsing method')
+
+    def fetch_task_for_crowdsource(self):
+        # get the oldest new message
+        q = Message.all()
+        q.filter("status =", "NEW")
+        q.order("status_timestamp")
+        result = q.fetch(1)
+        # TODO: deal with empty result set
+
+        # update the status of the message with the current timestamp
+        result.status_timestamp = datetime.datetime.now()
+        result.put()
+
+        # respond
+        response = {
+            'message':message,
+            'timestamp':message_timestamp,
+            'errorstatus':'ok',
+            'id':message.key()
+        }
+        self.response.out.write(simplejson.dumps(response))
+
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
-    application = webapp.WSGIApplication([('/', MainHandler),
-        ('/create', CreateHandler)], 
+    application = webapp.WSGIApplication([
+        ('/', MainHandler),
+        ('/create', CreateHandler), 
+        ('/post', PostHandler)], 
         debug=True)
     util.run_wsgi_app(application)
 
