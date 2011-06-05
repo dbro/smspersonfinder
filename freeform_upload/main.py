@@ -83,6 +83,8 @@ class PostHandler(webapp.RequestHandler):
         self.fetch_task_for_crowdsource()
 
     def post(self):
+        if(len(self.request.get('id')) == 0):
+            return
         self.update_parsed_message()
         logging.debug('falling back on crowdsource parsing method')
 

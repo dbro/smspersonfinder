@@ -43,7 +43,7 @@ def parse_formatted_message(timestr, source, message):
 
     timestr: timestring in the format 2011-05-05 19:30:55
     source: typically a 10 digital phone number
-    message: Formatted with last#first#description#note
+    message: formatted with last#first#description#note
     """
     #message = 'Koff#Jonathan#No comments.#Note.'
     timestr = str(timestr)
@@ -65,7 +65,7 @@ def parse_formatted_message(timestr, source, message):
     p.source_name = source
     p.first_name = fields[1]
     p.last_name = fields[0]
-    p.description = fields[2]
+    p.other = fields[2]
 
     n = Note()
     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
