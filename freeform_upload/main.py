@@ -47,11 +47,11 @@ class MainHandler(webapp.RequestHandler):
 
 class CreateHandler(webapp.RequestHandler):
     def get(self):
-        time = datetime.datetime.now()
         try:
             # TODO(amantri): Switch to post
             source = self.request.get('source')
             message = self.request.get('message')
+            time = self.request.get('time')
         except (TypeError, ValueError):
             self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
             return
@@ -66,9 +66,10 @@ class CreateHandler(webapp.RequestHandler):
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
-    def create_task_for_crowdsource(self, time, source, message):
+    def create_task_for_crowdsource(self, timestr, source, message):
         # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
-        message = Message(message_timestamp=time,
+        dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
+        message = Message(message_timestamp=dt,
             source_phone_number=source,
             message=message,
             status='NEW')

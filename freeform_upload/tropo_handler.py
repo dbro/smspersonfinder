@@ -17,7 +17,8 @@ q = {'source': source,
 query = urllib.urlencode(q)
 
 # Deliver payload
-url="http://smspersonfinder.appspot.com/create?%s" % query
+url="http://localhost:8080/create?%s" % query
+#url="http://smspersonfinder.appspot.com/create?%s" % query
 if not TROPO:
     print "Opening %s" % url
 resp = urllib.urlopen(url)

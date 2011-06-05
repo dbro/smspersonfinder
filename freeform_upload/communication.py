@@ -43,7 +43,9 @@ def upload_to_personfinder(timestr, source, message):
     key = "punsOMMYMAI27tkr"
     action = "write"
     namespace = "rhok1.com"
+    timestr = str(timestr)
     message = str(message)
+    source = str(source)
 
     fields = message.split('#');
     p = Person()
