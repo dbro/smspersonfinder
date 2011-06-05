@@ -38,6 +38,21 @@ def build_personfinder_url(action, domain, key):
     url = "https://%s.googlepersonfinder.appspot.com/api/%s?key=%s" % (domain, action, key)
     return url
 
+def split_message_to_fields(message):
+    """Message is in format
+    
+    message: formatted with last#first#status_of_person#description
+
+    Returns a dictionary
+    """
+    fields = message.split('#');
+    d = {'person_last_name': fields[0],
+         'person_first_name': fields[1],
+         'note_text': fields[2],
+         'person_other': fields[3],
+         }
+    return d
+
 def parse_formatted_message(timestr, source, message):
     """Parse formatted message
 
@@ -52,7 +67,7 @@ def parse_formatted_message(timestr, source, message):
     timestr = str(timestr)
     source = str(source)
     message = str(message)
-    fields = message.split('#');
+    fields = split_message_to_fields(message)
     namespace = "rhok1.com"
     unique_id = uuid.uuid1()
 
@@ -66,16 +81,16 @@ def parse_formatted_message(timestr, source, message):
 
     p.author_name = source
     p.source_name = source
-    p.first_name = fields[1]
-    p.last_name = fields[0]
-    p.other = fields[3]
+    p.first_name = fields['person_first_name']
+    p.last_name = fields['person_last_name']
+    p.other = fields['person_other']
 
     n = Note()
     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
     n.author_name = source
     p.source_name = source
     n.source_date = p.entry_date
-    n.text = fields[2]
+    n.text = fields['note_text']
 
     if 'alive' in n.text:
         n.status = 'believed_alive'
