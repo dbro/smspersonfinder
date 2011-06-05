@@ -42,6 +42,8 @@ class Message(db.Model):
     def __str__(self):
         return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key().id(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
+counter_name_new = 'new_messages'
+
 class Accumulator(db.Model):
   name = db.StringProperty()
   counter = db.IntegerProperty()
@@ -97,6 +99,7 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)
             message.put()
+            atomic_add_to_counter(counter_name_new, 1)
             reply = "Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description"
 
         self.response.out.write("%s" % reply)
@@ -112,6 +115,7 @@ class CreateHandler(webapp.RequestHandler):
 
 
 class PostHandler(webapp.RequestHandler):
+
     #Added by Dan for testing
     def get(self):
         self.post()
@@ -132,6 +136,9 @@ class PostHandler(webapp.RequestHandler):
         results = q.fetch(1)
         logging.debug('results from database: %s' % repr(results))
 
+        # get the count of new messages
+        new_message_count = get_counter(counter_name_new)
+
         # update the status of the message with the current timestamp
         response = {}
         if len(results):
@@ -140,7 +147,8 @@ class PostHandler(webapp.RequestHandler):
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
                 'errorstatus' : 'parse_error' if errorfromlastpost else 'ok',
-                'id' : repr(r.key().id())
+                'id' : repr(r.key().id()),
+                'new_message_count' : new_message_count
             }
             r.status_timestamp = datetime.datetime.now()
             r.put()
@@ -191,6 +199,7 @@ class PostHandler(webapp.RequestHandler):
         logging.debug('Person: %s' % repr(p))
         logging.debug('Message: %s' % message)
         message.put()
+        atomic_add_to_counter(counter_name_new, -1)
         return errorparsing
 
 class SearchHandler(webapp.RequestHandler):
