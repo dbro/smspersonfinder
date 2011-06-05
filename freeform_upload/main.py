@@ -87,19 +87,22 @@ class PostHandler(webapp.RequestHandler):
         q.filter("status =", "NEW")
         q.order("status_timestamp")
         result = q.fetch(1)
-        # TODO: deal with empty result set
 
         # update the status of the message with the current timestamp
-        result.status_timestamp = datetime.datetime.now()
-        result.put()
+        response = {}
+        if len(result) > 0:
+            r = result[0]
+            r.status_timestamp = datetime.datetime.now()
+            r.put()
+        else:
+            # TODO: properly deal with empty result set
+            logging.debug('no messages available for human parsing')
+            response.message = r.message
+            response.timestamp = r.message_timestamp
+            response.errorstatus = 'ok'
+            response.id = r.key()
 
         # respond
-        response = {
-            'message':message,
-            'timestamp':message_timestamp,
-            'errorstatus':'ok',
-            'id':message.key()
-        }
         self.response.out.write(simplejson.dumps(response))
 
 def main():
