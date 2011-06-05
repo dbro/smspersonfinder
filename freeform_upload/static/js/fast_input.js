@@ -1,5 +1,6 @@
 $(function() {
   var focused_input = false;
+  var drag_just_happened = false;  // Because mouseout happens after drag.
   $('.form-field input').each(function(i, elt) {
     $(elt).bind('focus', _.bind(function() {
       if(focused_input) {
@@ -12,9 +13,6 @@ $(function() {
       drop: function(evt, ui) {
         var word = $(evt.srcElement).text();
         var cur_val = $(this).val();
-        if(cur_val === undefined) {  // No focused input
-          return;
-        }
         var sep = cur_val.length > 0 ? ' ' : '';
         $(evt.srcElement).addClass('used');
         $(this).val(cur_val + sep + word);
@@ -22,17 +20,23 @@ $(function() {
       },
       over: function(evt, ui) {
         $(this).addClass('selected');
+        drag_just_happened = true;
       },
       out: function(evt, ui) {
         $(this).removeClass('selected');
       },
       deactivate: function(evt, ui) {
         $(evt.srcElement).css({ 'top': '0px', 'left': '0px' });
+        $(this).removeClass('selected');
       }
     });
   });
   $('#message span').each(function(i, elt) {
     $(elt).click(function(evt) {
+      if(drag_just_happened) {
+        drag_just_happened = false;
+        return;
+      }
       var word = $(evt.currentTarget).text();
       var cur_val = $(focused_input).val();
       if(cur_val === undefined) {  // No focused input
