@@ -17,7 +17,6 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext import db
-#from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
 import cgi
@@ -28,24 +27,48 @@ import wsgiref.handlers
 
 class Message(db.Model):
   """Messages with status information"""
-  status = db.StringProperty()
+  status = db.StringProperty(choices=['NEW', 'UNPARSEABLE', 'SENT'])
   status_timestamp = db.DateTimeProperty(auto_now_add=True)
   source_phone_number = db.StringProperty()
-  message_timestamp = db.DateTimeProperty()
+  message_timestamp = db.StringProperty()
   message = db.StringProperty(multiline=True)
   parsed_message = db.StringProperty(multiline=True)
 
+  def __str__(self):
+    return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
+
 
 class MainHandler(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write('Hello world!')
+  def get(self):
+    self.response.out.write('Hello world!')
+
+class CreateHandler(webapp.RequestHandler):
+  def get(self):
+    try:
+      # TODO(amantri): Switch to post
+      time = self.request.get('time')
+      source = self.request.get('source')
+      message = self.request.get('message')
+
+      # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
+      message = Message(message_timestamp=time,
+                    source_phone_number=source,
+                    message=message,
+                    status='NEW')
+      message.put()
+
+      self.response.out.write("<html><body><p>%s</p></body></html>" %
+          message)
+    except (TypeError, ValueError):
+      self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
 
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
+  application = webapp.WSGIApplication([('/', MainHandler),
+                                        ('/create', CreateHandler)], 
                                          debug=True)
-    util.run_wsgi_app(application)
+  util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':
-    main()
+  main()
