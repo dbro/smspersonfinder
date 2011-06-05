@@ -7,8 +7,8 @@ NUMFIELDS = 4
 
 # Set up payload
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-source = currentCall.callerID if TROPO else 'debug source'
-message = currentCall.initialText if TROPO else 'mangoogling#mister#missing#has really big eyes'
+source = currentCall.callerID if TROPO else '14154885884'
+message = currentCall.initialText if TROPO else 'incredible#googoo#dead#has really big eyes'
 #message = currentCall.initialText if TROPO else 'send me to crowdsource dude'
 
 # Build query string

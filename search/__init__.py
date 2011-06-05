@@ -95,7 +95,8 @@ def format_info(person) :
     result += format_home_address(person) + SMS_FIELD_SEP
     
     # person.other might have the description of the person
-    result += chop(person.other, 10)
+    if person.other:
+	    result += chop(person.other, 10) + " "
      
     person.found_status = None
     person.found_location = None
@@ -120,7 +121,9 @@ def format_info(person) :
         if person.found_status and person.found_location and person.found_contact:
             break
 
-    if not person.found_status:
+    if person.found_status:
+        found_status = person.found_status
+    else:
         found_status = "no_status"
     
     result += found_status + SMS_FIELD_SEP
@@ -218,5 +221,7 @@ def handle(message):
         
         if persons_str > SMS_RESULT_MAXLEN:
             return get_refinement_criteria(persons)
-            
+
     return persons_str
+
+
