@@ -56,8 +56,10 @@ class CreateHandler(webapp.RequestHandler):
     # try to upload to person finder, if it fails (i.e. has no #)
     try:
       upload_to_personfinder(message)
+      message += ' [via formatted]'
     except:
       self.send_to_crowdsource(time, source, message)
+      message += ' [via crowdsource]'
 
     self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
