@@ -61,6 +61,11 @@ def atomic_add_to_counter(ctr_name, val):
   else:
     db.run_in_transaction(add_to_counter, acc.key(), val)
 
+def get_counter(ctr_name):
+  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
+  acc = q.get()
+  return acc.counter
+
 class MainHandler(webapp.RequestHandler):
   def get(self):
     self.response.out.write('SMS person finder')
