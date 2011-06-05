@@ -4,7 +4,6 @@ from util import *
 
 SubDomain = "rhok"
 AuthToken = "soNQ67BhLRP0tIvP"
-query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + query
 host = "https://googlepersonfinder.appspot.com"
 
 def name_search(name, persons):
@@ -57,6 +56,7 @@ def print_full_info(person) :
     print "home_country......%s" % person.home_country
 
 def handle(message):
+    query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
     data = urllib2.urlopen("%s%s" % (host, query_uri)).read()
     dom1 = dom.parseString(data)
     (persons, notes) = from_xml(dom1)
