@@ -53,9 +53,8 @@ def split_message_to_fields(message):
          }
     return d
 
-def convert_timestr_to_rfc3339(timestr):
+def convert_datetime_to_rfc3339(dt):
     """Returns RFC 3339 from timestr"""
-    dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
     time_rfc3339 = vendor.rfc3339.datetimetostr(dt)
     return time_rfc3339
 
@@ -80,11 +79,12 @@ def parse_formatted_message(timestr, source, message):
     p = Person()
     p.person_record_id = '%s/person.%s' % (namespace, unique_id)
 
-    time_rfc3339 = convert_timestr_to_rfc3339(timestr)
+    dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
+    time_rfc3339 = convert_datetime_to_rfc3339(dt)
     p.entry_date = time_rfc3339
+    p.expiry_date = vendor.rfc3339.datetimetostr( dt + datetime.timedelta(12 * 30))
     #dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
     #p.entry_date = vendor.rfc3339.datetimetostr(dt)
-    #p.expiry_date = vendor.rfc3339.datetimetostr( dt + datetime.timedelta(12 * 30))
 
     p.author_name = source
     p.source_name = source
