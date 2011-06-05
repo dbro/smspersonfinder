@@ -43,8 +43,35 @@ def format_info(person) :
    elif person.age:
       result += person.age + " "
 
-   result += person.notes.pop().last_known_location
+   found_status = 0
+   found_location = 0
+   found_contact = 0
+   found_text = 0
 
+   note_text = ""
+
+   while len(person.notes):
+      note = person.notes.pop()
+      if found_status == 0 and note.status:
+         result += note.status + " "
+         found_status = 1
+         #Collect Note text from the last known status
+         if note.text:
+            note_text = note.text
+            found_text = 1
+      if found_location == 0 and note.last_known_location:
+         result += note.last_known_location + " "
+         found_location = 1
+      if found_contact == 0 and note.phone_of_found_person:
+         result += note.phone_of_found_person + " "
+         found_contact = 1
+         break
+
+   if found_status == 0:
+      result += "Status - Unknown"
+   elif found_text:
+      result += "Notes: " + note_text
+   #print result
    return result
 
 def print_person_info(person):
