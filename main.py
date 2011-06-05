@@ -28,7 +28,7 @@ import logging
 import search 
 import models
 import uuid
-from communication import parse_formatted_message,upload_to_personfinder
+from communication import parse_formatted_message, upload_to_personfinder, split_message_to_fields
 
 class Message(db.Model):
     """Messages with status information"""
@@ -88,14 +88,18 @@ class CreateHandler(webapp.RequestHandler):
             person = parse_formatted_message(time, source, message)
             upload_to_personfinder(person)
 
-            reply = 'Succesfully added to Google Person Finder'
+            fields = split_message_to_fields(message)
+            reply = 'Added to Person Finder.\nName: %s %s' % (fields['person_first_name'],
+                                                               fields['person_last_name'])
+            # limit to 140
+            reply = reply[0:139]
         except:
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)
             message.put()
             reply = "Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description"
 
-        self.response.out.write("<html><body><p>%s</p></body></html>" % reply)
+        self.response.out.write("%s" % reply)
 
     def create_task_for_crowdsource(self, timestr, source, message):
         # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes

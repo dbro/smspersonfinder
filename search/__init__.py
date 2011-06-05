@@ -92,7 +92,7 @@ def format_info(person) :
     elif person.age:
         result += person.age + SMS_FIELD_SEP
 
-    result += format_home_address() + SMS_FIELD_SEP
+    result += format_home_address(person) + SMS_FIELD_SEP
     
     # person.other might have the description of the person
     result += chop(person.other, 10)
@@ -179,7 +179,23 @@ def compact_format_info(persons):
     return ""
 
 def get_refinement_criteria(persons):
-    return ""
+    SMS_ATTR_SEP = "#"
+    
+    response = "Too many hits, refine (ex. name#age=9#sex=M): "
+    attrs = hot_attrs(persons)
+    for (attr, count, values) in attrs:
+        if count == 1:
+            break
+        response += SMS_ATTR_SEP + attr + "=["
+        attr_values = ""
+        for v in values:
+            if attr_values:
+                attr_values += ","
+            attr_values += v
+        response += "]"
+        
+    chop(response, SMS_RESULT_MAXLEN)
+    return response
 
 def handle(message):
     query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
