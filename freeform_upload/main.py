@@ -40,6 +40,25 @@ class Message(db.Model):
     def __str__(self):
         return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
+class Accumulator(db.Model):
+  name = db.StringProperty()
+  counter = db.IntegerProperty()
+
+def atomic_add_to_counter(ctr_name, val):
+  def add_to_counter(key, val):
+    obj = db.get(key)
+    obj.counter += val
+    obj.put()
+
+  q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
+  acc = q.get()
+  if acc == None:
+    acc = Accumulator()
+    acc.name = ctr_name
+    acc.counter = val
+    acc.put()
+  else:
+    db.run_in_transaction(add_to_counter, acc.key(), val)
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
@@ -74,6 +93,7 @@ class CreateHandler(webapp.RequestHandler):
             message=message,
             status='NEW')
         message.put()
+        atomic_add_to_counter('msg_count', 1)
 
 class PostHandler(webapp.RequestHandler):
     def get(self):
