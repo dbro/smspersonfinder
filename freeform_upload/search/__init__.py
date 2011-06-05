@@ -43,10 +43,11 @@ def format_info(person) :
    elif person.age:
       result += person.age + " "
 
-   print result
+   result += person.notes.pop().last_known_location
+
    return result
 
-def print_full_info(person) :
+def print_person_info(person):
     print "person_record_id..%s" % person.person_record_id
     print "entry_date........%s" % person.entry_date
     print "expiry_date.......%s" % person.expiry_date
@@ -70,6 +71,22 @@ def print_full_info(person) :
     print "photo_url.........%s" % person.photo_url
     print "other.............%s" % person.other
     print "home_country......%s" % person.home_country
+
+def print_note_info(note):
+    print "note_record_id..............%s" % note.note_record_id
+    print "person_record_id............%s" % note.person_record_id
+    print "linked_person_record_id.....%s" % note.linked_person_record_id
+    print "entry_date..................%s" % note.entry_date
+    print "author_name.................%s" % note.author_name
+    print "author_email................%s" % note.author_email
+    print "author_phone................%s" % note.author_phone
+    print "source_date.................%s" % note.source_date
+    print "found.......................%s" % note.found
+    print "email_of_found_person.......%s" % note.email_of_found_person
+    print "phone_of_found_person.......%s" % note.phone_of_found_person
+    print "last_known_location.........%s" % note.last_known_location
+    print "text........................%s" % note.text
+    print "status......................%s" % note.status
 
 def handle(message):
     query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
