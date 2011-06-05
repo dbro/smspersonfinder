@@ -1,0 +1,163 @@
+<html>
+  <head>
+  <link rel="stylesheet" href="css/style.css" />
+<script type="text/javascript"
+  src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+ 
+  </head>
+  <body onLoad="sendRequest(false);">
+
+	<div id="mainheader">
+		<div id="welcome"> Welcome to the personfinder app. </div>
+		<div id="description"> Below is a text message from the disaster area. Help us complete our database by filling out as many of the fields below as possible. Bolded items are required. </div>
+	</div>
+	<div id="main">	
+	    <p> <div id ="please"> Please help us decode this message:
+  </div>
+  <div class="header" id="header">
+		<div id="message">
+		</div>
+		<div id="timestamp" class="timestamp"></div>
+		<div class="spam"><a href=""
+		onClick="sendRequest(true);return false;">Mark as spam</a><br/></div>
+		<div class="skip"><a href=""
+		onClick="sendRequest(false);return false;">Skip this one.</a></div>
+  </div>
+	    </p>
+		<p>
+		<div id="decode">
+			Decode
+		</div>
+		</p>
+		<div class="form-field">
+	    <form id="dataform">
+		  <input type="hidden" name="id" id="id" value>
+		  <table class="table">
+		    <tr>
+		      <td>
+			<div class="column"><u>About this person</u> <br/><br/>
+	      <label><b>Last name:</b></label> <input type="text"
+  name="last_name" id="last_name" size="40" value=""> <br/>
+			  
+	      <label><b>First name:</b></label> <input type="text"
+	      name="first_name" id="first_name" size="40" value="">
+	      <br/>
+			  <label>Current Location:</label>	<div class="hint">Hint</div>
+ <input type="text" name="last_known_location" size="40" value=""> <br/>
+	     Status:</br>   <select name="status" id="status"
+  onchange="togglePersonallySeen();">
+		  
+    <option value="" selected="selected">Unspecified</option>
+    <option value="is_note_author">Sender is this person</option>
+    <option value="information_sought">Sender is looking for this person</option>
+    <option value="believed_alive">Sender thinks this person is alive</option>
+    <option value="believed_dead">Sender thinks this person is dead</option>
+  </select>
+  <div id="found" class="seen">
+<label>Has the sender personally seen this person?</label>
+    <input type="radio" name="found" value="yes" id = "found_yes"
+    checked="checked"><label for="found_yes"> Yes</label>
+    <input type="radio" name="found" value="no"  id = "found_no"><label for="seen_no"> No</label>
+  </div>
+
+	      
+		  </div></td><td><div class="column">
+		   
+<u>Physical Characterstics</u><br/><br/>
+		    <label>Sex:</label><select name="sex">
+		      <option value="" selected="yes"></option>
+		      <option value="female">female</option>
+   		      <option value="male">male</option>
+		      <option value="other">other</option>
+		      </select><br/>
+		     <label>Age:</label> <input type="text" name="age"><br/>
+ 		     <label>Description:</label> 	<div class="hint">Hint</div><textarea cols="30" rows="3" name="other"></textarea><br/>
+
+		  </div></td>
+
+		<td>
+		  <div class="column"><u>Home Address</u><br/><br/>
+
+		  <label>Street Name:</label> <input type="text" name="home_street" size="40" value=""> <br/>		  
+		  <label>Neighborhood:</label> <input type="text" name="home_neighborhood" size="40" value=""> <br/>		  
+		  <label>City:</label> <input type="text" name="home_city" size="40" value=""> <br/>		  
+		  <label>Province or State:</label> <input type="text" name="home_state" size="40" value=""> <br/>	  
+		  <label>Postal code:</label> <input type="text" name="home_postal_code" size="40" value=""> <br/>	  
+		  <label>Country:</label> <input type="text" name="home_country" size="40" value=""> <br> 
+                  </div>
+</td></tr>
+		  </table>
+		  <label><input type="submit" value="Submit"
+		  name="submit" onclick="if (checkMandatoryFields()) {
+		  sendRequest(false); return false;}"></label>
+	    </form>
+		</div>
+	  
+	</div>
+	 <script type="text/javascript">
+	        function setSpam() {
+	          document.getElementById('parsable').value = false;
+	        }
+		function checkMandatoryFields() {
+		   var last_name = document.getElementById('last_name');
+		var first_name =
+		  document.getElementById('first_name');
+		if (!last_name || !first_name || last_name.value
+		  == ''  || first_name.value == '') {
+		alert("Please enter both family name and the givenname");
+		return false;
+		}
+		return true;
+		}
+	
+		function togglePersonallySeen() {
+		var status = document.getElementById('status');
+		var seen = document.getElementById('found');
+		var seen_radio = document.getElementsByName('found');
+		
+		if (!status || !seen_radio || !seen) {
+		} else {
+		seen_radio[0].checked = false;
+		seen_radio[1].checked = true;
+		if (status.value == "believed_dead" || status.value == "believed_alive") {
+		seen.style.display = 'block';
+		//alert('Status is ' + status.value);
+		} else {
+		if (status.value == "is_note_author") {
+		seen_radio[1].checked = false;
+		seen_radio[0].checked = true;
+		}
+		seen.style.display = 'none';
+		}
+		
+		}}
+	function setDataJSON(argu) {
+	console.log(argu);
+	}
+	
+	function sendRequest(is_unparsable) {
+	 console.log('loggig');
+	 formdata = $("#dataform");
+	 if (is_unparsable) {
+	 formdata["parseable"] = "false";
+	} else {
+	 formdata["parseable"] = "true";
+	}
+        // $.post("http://smspersonfinder.appspot.com/post",
+        $.post("http://localhost:8080/post",
+	formdata.serialize(),
+	function(data) {
+	document.getElementById('dataform').reset();
+	a = JSON.parse(data);
+	document.getElementById('timestamp').innerHTML = a.timestamp;
+	var strings = a.message.split(" ");
+	jQuery.each
+	document.getElementById('message').innerHTML = a.message;
+
+	document.getElementById('id').value = a.id;
+	}
+		);
+		  }
+	</script>
+  </body>
+</html>
