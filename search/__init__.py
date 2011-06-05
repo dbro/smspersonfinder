@@ -92,7 +92,7 @@ def format_info(person) :
     elif person.age:
         result += person.age + SMS_FIELD_SEP
 
-    result += format_home_address() + SMS_FIELD_SEP
+    result += format_home_address(person) + SMS_FIELD_SEP
     
     # person.other might have the description of the person
     result += chop(person.other, 10)
