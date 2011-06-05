@@ -105,13 +105,19 @@ class CreateHandler(webapp.RequestHandler):
 
 
 class PostHandler(webapp.RequestHandler):
+    #Added by Dan for testing
+    #def get(self):
+    #    self.post()
+
     def post(self):
+        logging.debug('post handler post method called')
         errorresult = False
         if self.request.get('id'):
             errorresult = self.update_parsed_message()
         self.fetch_task_for_crowdsource(errorresult)
 
     def fetch_task_for_crowdsource(self, errorfromlastpost = False):
+        logging.debug('fetch task for crowdsource method called')
         # get the oldest new message
         q = Message.all()
         q.filter("status =", "NEW")
@@ -126,7 +132,7 @@ class PostHandler(webapp.RequestHandler):
             response = {
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
-                'errorstatus' : if errorfromlastpost then 'parse_error' else 'ok',
+                'errorstatus' : 'parse_error' if errorfromlastpost else 'ok',
                 'id' : repr(r.key().id())
             }
             r.status_timestamp = datetime.datetime.now()
@@ -139,6 +145,7 @@ class PostHandler(webapp.RequestHandler):
         self.response.out.write(simplejson.dumps(response))
     
     def update_parsed_message(self):
+        logging.debug('update parsed message method called')
         logging.debug('Request: %s' % self.request)
         message = Message.get_by_id(long(self.request.get('id')))
 
