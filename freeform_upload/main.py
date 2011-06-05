@@ -25,9 +25,9 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
-from communication import parse_formatted_message,upload_to_personfinder
 import logging
 import search 
+from communication import parse_formatted_message,upload_to_personfinder
 
 class Message(db.Model):
     """Messages with status information"""
@@ -78,14 +78,14 @@ class CreateHandler(webapp.RequestHandler):
             status='NEW')
         return message
 
+
 class PostHandler(webapp.RequestHandler):
     def get(self):
         self.fetch_task_for_crowdsource()
 
     def post(self):
-        if(len(self.request.get('id')) == 0):
-            return
-        self.update_parsed_message()
+        if not self.request.get('id'):
+            self.update_parsed_message()
         logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
@@ -98,7 +98,7 @@ class PostHandler(webapp.RequestHandler):
 
         # update the status of the message with the current timestamp
         response = {}
-        if len(results) > 0:
+        if len(results):
             r = results[0]
             response = {
                 'message' : r.message,
@@ -116,7 +116,11 @@ class PostHandler(webapp.RequestHandler):
         self.response.out.write(simplejson.dumps(response))
     
     def update_parsed_message(self):
+        p = Person()
+        for attr in PFIF_13_PERSON_ATTRS:
+            setattr(p, attr, self.request.get(attr, None))
         self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
+
 
 class SearchHandler(webapp.RequestHandler):
     def get(self):
