@@ -54,7 +54,7 @@ div#decode {
 
 input,select {
 	width:250px;
-	padding-right:80px;
+	padding-right:0px;
   margin-bottom: 5px;
 }
 select#sex {
@@ -185,4 +185,17 @@ input.selected, textarea.selected {
 #age_container, #age_container input {
   float: left;
   width: 90px;
+}
+div#found {
+  width: 250px;
+}
+div#found * {
+  width: 250px;
+}
+div#found label {
+  display: inline;
+}
+input#submit {
+  margin-left: 10px;
+  margin-bottom: 10px;
 }

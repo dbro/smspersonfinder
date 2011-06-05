@@ -27,7 +27,7 @@
 		<div class="spam" id="spam"><a href="#"
     onClick="sendRequest(false);return false;">Mark as spam</a><br/></div>
 		<div class="skip" id="skip"><a href="#"
-		onClick="clearID();sendRequest(true);return false;">Skip this one.</a></div>
+		onClick="clearID();sendRequest(true);return false;">Skip this one <span id="new_count"></span></a></div>
   </div>
 	    </p>
 		<div class="form-field">
@@ -61,7 +61,6 @@
     <input type="radio" name="found" value="no"  id = "found_no"><label for="seen_no"> No</label>
   </div>
 
-	      
 		  </div></td><td><div id="col2" class="column">
 		   
 <div class="heading">Physical Characteristics</div>
@@ -102,7 +101,7 @@
                   </div>
 </td></tr>
 		  </table>
-		  <input type="submit" value="Submit"
+		  <input type="submit" value="Add to Person Finder"
       name="submit" id="submit" onclick="if (checkMandatoryFields()) {
 		  sendRequest(true);}return false;">
 	    </form>
@@ -152,8 +151,8 @@
 	
 	function sendRequest(is_parseable) {
     document.body.style.cursor = 'wait';
-         $.post("http://smspersonfinder.appspot.com/post",
-        //$.post("http://localhost:8080/post",
+       $.post("http://smspersonfinder.appspot.com/post",
+       //$.post("http://localhost:8080/post",
 	$("#dataform").serialize() + "&parseable=" + is_parseable,
 	function(data) {
 	document.getElementById('dataform').reset();
@@ -173,6 +172,10 @@
       message += "<span>" + val + "</span> ";
     });
     document.getElementById('message').innerHTML = message;
+    if(a.new_message_count !== undefined) {
+      document.getElementById('new_count').innerHTML =
+        "(" + (a.new_message_count-1) + " others)";
+    }
     message_init();
 
     document.getElementById('id').value = a.id;

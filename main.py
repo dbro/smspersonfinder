@@ -67,7 +67,7 @@ def atomic_add_to_counter(ctr_name, val):
 def get_counter(ctr_name):
   q = db.GqlQuery("SELECT * FROM Accumulator WHERE name = :1", ctr_name)
   acc = q.get()
-  return acc.counter
+  return acc.counter if acc is not None else None
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
