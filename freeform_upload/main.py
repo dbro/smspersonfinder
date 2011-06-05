@@ -62,7 +62,8 @@ class CreateHandler(webapp.RequestHandler):
             upload_to_personfinder(time, source, message)
         except:
             logging.debug('falling back on crowdsource parsing method')
-            self.create_task_for_crowdsource(time, source, message)
+            message = self.create_task_for_crowdsource(time, source, message)
+            message.put()
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
@@ -73,13 +74,14 @@ class CreateHandler(webapp.RequestHandler):
             source_phone_number=source,
             message=message,
             status='NEW')
-        message.put()
+        return message
 
 class PostHandler(webapp.RequestHandler):
     def get(self):
         self.fetch_task_for_crowdsource()
 
     def post(self):
+        self.update_parsed_message()
         logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
@@ -108,6 +110,9 @@ class PostHandler(webapp.RequestHandler):
 
         # respond
         self.response.out.write(simplejson.dumps(response))
+    
+    def update_parsed_message(self):
+        self.response.out.write("<html><body><p> %s inputs</p></body></html>" % self.request.arguments())
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
