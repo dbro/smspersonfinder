@@ -93,8 +93,7 @@ class CreateHandler(webapp.RequestHandler):
             logging.debug('falling back on crowdsource parsing method')
             message = self.create_task_for_crowdsource(time, source, message)
             message.put()
-            reply = ("Sent to crowd-source for input. For instant upload to Person Finder,",
-                     " use the format last_name#first_name#status_of_person#description")
+            reply = "Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description"
 
         self.response.out.write("<html><body><p>%s</p></body></html>" % reply)
 
