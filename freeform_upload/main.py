@@ -80,8 +80,11 @@ class PostHandler(webapp.RequestHandler):
 
     def post(self):
         logging.debug('falling back on crowdsource parsing method')
+        # check data for problems
+        # get new message to parse
+        #self.fetch_task_for_crowdsource(errorfromlastpost)
 
-    def fetch_task_for_crowdsource(self):
+    def fetch_task_for_crowdsource(self, errorfromlastpost = False):
         # get the oldest new message
         q = Message.all()
         q.filter("status =", "NEW")
@@ -96,7 +99,7 @@ class PostHandler(webapp.RequestHandler):
             response = {
                 'message' : r.message,
                 'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
-                'errorstatus' : 'ok',
+                'errorstatus' : if errorfromlastpost then 'errorfromlastpost' else 'ok',
                 'id' : repr(r.key())
             }
             r.status_timestamp = datetime.datetime.now()
