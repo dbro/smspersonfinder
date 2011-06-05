@@ -18,6 +18,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext import db
 from google.appengine.ext import db
+from django.utils import simplejson
 
 import logging
 import cgi
@@ -28,58 +29,95 @@ from communication import upload_to_personfinder
 import logging
 
 class Message(db.Model):
-  """Messages with status information"""
-  status = db.StringProperty(choices=['NEW', 'UNPARSEABLE', 'SENT'])
-  status_timestamp = db.DateTimeProperty(auto_now_add=True)
-  source_phone_number = db.StringProperty()
-  message_timestamp = db.StringProperty()
-  message = db.StringProperty(multiline=True)
-  parsed_message = db.StringProperty(multiline=True)
+    """Messages with status information"""
+    status = db.StringProperty(choices=['NEW', 'UNPARSEABLE', 'SENT'])
+    status_timestamp = db.DateTimeProperty(auto_now_add=True)
+    source_phone_number = db.StringProperty()
+    message_timestamp = db.DateTimeProperty(auto_now_add=True)
+    message = db.StringProperty(multiline=True)
+    parsed_message = db.StringProperty(multiline=True)
 
-  def __str__(self):
-    return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
+    def __str__(self):
+        return "id=%s<br>status=%s<br>status_timestamp=%s<br>source=%s<br>message=%s<br>message_timestamp=%s" % (self.key(), self.status, self.status_timestamp, self.source_phone_number, self.message, self.message_timestamp)
 
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
-    self.response.out.write('Hello world!')
+    self.response.out.write('SMS person finder')
 
 class CreateHandler(webapp.RequestHandler):
-  def get(self):
-    try:
-      # TODO(amantri): Switch to post
-      time = self.request.get('time')
-      source = self.request.get('source')
-      message = self.request.get('message')
-    except (TypeError, ValueError):
-      self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
-      return False
+    def get(self):
+        try:
+            # TODO(amantri): Switch to post
+            source = self.request.get('source')
+            message = self.request.get('message')
+            time = self.request.get('time')
+        except (TypeError, ValueError):
+            self.response.out.write("<html><body><p>Invalid inputs</p></body></html>")
+            return
 
-    # try to upload to person finder, if it fails (i.e. has no #)
-    try:
-      logging.debug('trying to use formatted parsing method')
-      upload_to_personfinder(message)
-    except:
-      logging.debug('falling back on crowdsource parsing method')
-      self.send_to_crowdsource(time, source, message)
+        # try to upload to person finder, if it fails (i.e. has no #)
+        try:
+            logging.debug('trying to use formatted parsing method')
+            upload_to_personfinder(time, source, message)
+        except:
+            logging.debug('falling back on crowdsource parsing method')
+            self.create_task_for_crowdsource(time, source, message)
 
-    self.response.out.write("<html><body><p>%s</p></body></html>" % message)
+        self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
-  def send_to_crowdsource(self, time, source, message):
-    # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
-    message = Message(message_timestamp=time,
-                  source_phone_number=source,
-                  message=message,
-                  status='NEW')
-    message.put()
+    def create_task_for_crowdsource(self, timestr, source, message):
+        # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
+        dt = datetime.datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
+        message = Message(message_timestamp=dt,
+            source_phone_number=source,
+            message=message,
+            status='NEW')
+        message.put()
+
+class PostHandler(webapp.RequestHandler):
+    def get(self):
+        self.fetch_task_for_crowdsource()
+
+    def post(self):
+        logging.debug('falling back on crowdsource parsing method')
+
+    def fetch_task_for_crowdsource(self):
+        # get the oldest new message
+        q = Message.all()
+        q.filter("status =", "NEW")
+        q.order("status_timestamp")
+        results = q.fetch(1)
+        logging.debug('results from database: %s' % repr(results))
+
+        # update the status of the message with the current timestamp
+        response = {}
+        if len(results) > 0:
+            r = results[0]
+            response = {
+                'message' : r.message,
+                'timestamp' : datetime.datetime.isoformat(r.message_timestamp, ' '),
+                'errorstatus' : 'ok',
+                'id' : repr(r.key())
+            }
+            r.status_timestamp = datetime.datetime.now()
+            r.put()
+        else:
+            # TODO: properly deal with empty result set
+            logging.debug('no messages available for human parsing')
+
+        # respond
+        self.response.out.write(simplejson.dumps(response))
 
 def main():
-  logging.getLogger().setLevel(logging.DEBUG)
-  application = webapp.WSGIApplication([('/', MainHandler),
-                                        ('/create', CreateHandler)], 
-                                         debug=True)
-  util.run_wsgi_app(application)
+    logging.getLogger().setLevel(logging.DEBUG)
+    application = webapp.WSGIApplication([
+        ('/', MainHandler),
+        ('/create', CreateHandler), 
+        ('/post', PostHandler)], 
+        debug=True)
+    util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':
-  main()
+    main()
