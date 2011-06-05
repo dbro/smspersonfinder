@@ -142,11 +142,12 @@ class PostHandler(webapp.RequestHandler):
         p = models.Person()
         for attr in models.PFIF_13_PERSON_ATTRS:
             setattr(p, attr, self.request.get(attr, None))
+
         for attr in models.PFIF_13_NOTE_ATTRS:
             if self.request.get(attr):
                 if not p.notes:
                     p.notes.append(models.Note())
-                setattr(p.notes[0], attr, self.request.get(attr)
+                setattr(p.notes[0], attr, self.request.get(attr))
             
         logging.debug('Person: %s' % repr(p))
 
