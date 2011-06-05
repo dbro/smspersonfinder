@@ -1,10 +1,21 @@
 import urllib2
 from models import *
 from util import *
+import urllib
 
 SubDomain = "rhok"
 AuthToken = "soNQ67BhLRP0tIvP"
 host = "https://googlepersonfinder.appspot.com"
+
+SMS_MAXLEN = 140
+SMS_RESULT_MAXLEN = SMS_MAXLEN*2
+SMS_FIELD_SEP = "/"
+SMS_PERSON_SEP = "##"
+
+def chop(str, length):
+    if len(str) > length:
+        str = str[0:length-3] + "..."
+    return str
 
 def name_search(name, persons):
     found_persons = []
@@ -28,51 +39,57 @@ def name_search(name, persons):
     return found_persons
 
 def format_info(person) :
-   result=""
-   if person.full_name:
-       result += person.full_name + " "
-   else:
-      if person.first_name:
-         result += person.first_name + " "
-      if person.last_name:
-         result += person.last_name + " "
-   if person.sex:
-      result += person.sex + " "
-   if person.date_of_birth:
-      result += person.date_of_birth + " "
-   elif person.age:
-      result += person.age + " "
+    result=""
+    if person.full_name:
+        result += person.full_name.split("\n")[0] + SMS_FIELD_SEP
+    else:
+        if person.first_name:
+            result += person.first_name + SMS_FIELD_SEP
+        if person.last_name:
+            result += person.last_name + SMS_FIELD_SEP
+    if person.sex:
+        result += person.sex + SMS_FIELD_SEP
+    if person.date_of_birth:
+        result += person.date_of_birth + SMS_FIELD_SEP
+    elif person.age:
+        result += person.age + SMS_FIELD_SEP
 
-   found_status = 0
-   found_location = 0
-   found_contact = 0
-   found_text = 0
+    person.found_status = None
+    person.found_location = None
+    person.found_contact = None
+    person.found_text = None
 
-   note_text = ""
+    while len(person.notes):
+        note = person.notes.pop()
+        if not person.found_status and note.status:
+            if note.status == 'is_note_author':
+                note.status = 'believed_alive'
+            person.found_status = note.status
+            #Collect Note text from the last known status
+            # GFR: this text can be big, we should find the sweet spot to chop
+            if note.text:
+                person.found_text = chop(note.text, 10)
+        if not person.found_location and note.last_known_location:
+            person.found_location = note.last_known_location
+        if not person.found_contact and note.phone_of_found_person:
+            person.found_contact = note.phone_of_found_person
+        
+        if person.found_status and person.found_location and person.found_contact:
+            break
 
-   while len(person.notes):
-      note = person.notes.pop()
-      if found_status == 0 and note.status:
-         result += note.status + " "
-         found_status = 1
-         #Collect Note text from the last known status
-         if note.text:
-            note_text = note.text
-            found_text = 1
-      if found_location == 0 and note.last_known_location:
-         result += note.last_known_location + " "
-         found_location = 1
-      if found_contact == 0 and note.phone_of_found_person:
-         result += note.phone_of_found_person + " "
-         found_contact = 1
-         break
-
-   if found_status == 0:
-      result += "Status - Unknown"
-   elif found_text:
-      result += "Notes: " + note_text
-   #print result
-   return result
+    if not person.found_status:
+        found_status = "no_status"
+    
+    result += found_status + SMS_FIELD_SEP
+    if person.found_contact:
+        result += person.found_contact + SMS_FIELD_SEP
+    if person.found_location:
+        result += person.found_location + SMS_FIELD_SEP
+    if person.found_text:
+        result += person.found_text
+    
+    #print result
+    return result
 
 def print_person_info(person):
     print "person_record_id..%s" % person.person_record_id
@@ -115,20 +132,32 @@ def print_note_info(note):
     print "text........................%s" % note.text
     print "status......................%s" % note.status
 
+def compact_format_info(persons):
+    return ""
+
+def get_refinement_criteria(persons):
+    return ""
+
 def handle(message):
     query_uri = "/api/search?key=" + AuthToken + "&subdomain=" + SubDomain + "&q=" + message
     data = urllib2.urlopen("%s%s" % (host, query_uri)).read()
     dom1 = dom.parseString(data)
     (persons, notes) = from_xml(dom1)
-    found_persons = name_search(message, persons)
+    #found_persons = name_search(message, persons)
+    if not persons:
+        return chop("No results found for: %s" % urllib.unquote(message), SMS_MAXLEN)
+    
     persons_str = ""
-    count = 0
-    if found_persons:
-        for person in found_persons:
-           #add a new line after each person entry in the result
-            if count == 0:
-               persons_str += "\n"
-            persons_str += format_info(person)
-            count += 1
+    for person in persons:
+        #add a new line after each person entry in the result
+        if persons_str:
+            persons_str += SMS_PERSON_SEP
+        persons_str += format_info(person)
 
+    if persons_str > SMS_RESULT_MAXLEN:
+        persons_str = compact_format_info(persons)
+        
+        if persons_str > SMS_RESULT_MAXLEN:
+            return get_refinement_criteria(persons)
+            
     return persons_str
