@@ -20,7 +20,6 @@ from google.appengine.ext import db
 from google.appengine.ext import db
 from django.utils import simplejson
 
-import logging
 import cgi
 import datetime
 import urllib
@@ -28,6 +27,7 @@ import wsgiref.handlers
 import logging
 import search 
 import models
+import uuid
 from communication import parse_formatted_message,upload_to_personfinder
 
 class Message(db.Model):
@@ -106,10 +106,9 @@ class CreateHandler(webapp.RequestHandler):
 
 class PostHandler(webapp.RequestHandler):
     def post(self):
-        if not self.request.get('id'):
+        if self.request.get('id'):
             self.update_parsed_message()
         self.fetch_task_for_crowdsource()
-        logging.debug('falling back on crowdsource parsing method')
 
     def fetch_task_for_crowdsource(self):
         # get the oldest new message
@@ -139,17 +138,40 @@ class PostHandler(webapp.RequestHandler):
         self.response.out.write(simplejson.dumps(response))
     
     def update_parsed_message(self):
+        logging.debug('Request: %s' % self.request)
+        message = Message.get_by_id(long(self.request.get('id')))
+
         p = models.Person()
+        namespace = "rhok1.com"
+        unique_id = uuid.uuid1()
+        p.person_record_id = '%s/person.%s' % (namespace, unique_id)
+        p.author_name = message.source_phone_number
+
         for attr in models.PFIF_13_PERSON_ATTRS:
-            setattr(p, attr, self.request.get(attr, None))
+            if self.request.get(attr):
+                logging.debug('%s: %s' % (attr, self.request.get(attr)))
+                setattr(p, attr, self.request.get(attr))
 
         for attr in models.PFIF_13_NOTE_ATTRS:
             if self.request.get(attr):
                 if not p.notes:
-                    p.notes.append(models.Note())
+                    n = models.Note()
+                    n.note_record_id = '%s/note.%s' % (namespace, unique_id)
+                    n.author_name = message.source_phone_number
+                    p.notes.append(n)
                 setattr(p.notes[0], attr, self.request.get(attr))
-            
+
+        logging.debug('###### Here')
+        message.status_timestamp = datetime.datetime.now()
+        if self.request.get('parseable').lower() == 'false':
+            message.status = 'UNPARSEABLE'
+        else:
+            upload_to_personfinder(p)
+            message.status = 'SENT'
+
         logging.debug('Person: %s' % repr(p))
+        logging.debug('Message: %s' % message)
+        message.put()
 
 
 class SearchHandler(webapp.RequestHandler):

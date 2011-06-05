@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 from util import add_string_element
 
 PFIF_13_NS = "http://zesty.ca/pfif/1.3"
@@ -82,6 +83,12 @@ class Person:
             if e.firstChild is not None:
                 setattr(person, e.localName, e.firstChild.data.strip())
         return person
+
+    def __str__(self):
+        attrs = []
+        for attr in self.__dict__:
+            attrs.append('%s=%s' % (attr, getattr(self, attr)))
+        return ', '.join(attrs)
     
 class Note:
     def __init__(self, *args, **kwargs):
