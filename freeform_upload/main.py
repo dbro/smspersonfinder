@@ -40,7 +40,7 @@ class Message(db.Model):
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
-    self.response.out.write('Hello world!')
+    self.response.out.write('SMS person finder')
 
 class CreateHandler(webapp.RequestHandler):
   def get(self):
@@ -61,8 +61,12 @@ class CreateHandler(webapp.RequestHandler):
 
     self.response.out.write("<html><body><p>%s</p></body></html>" % message)
 
+  def post(self):
+    name = self.request.get("name")
+    
+
   def send_to_crowdsource(self, time, source, message):
-    # TODO(amantri): set the key to be the has of time, source and message to prevent dupes
+    # TODO(amantri): set the key to be the hash of time, source and message to prevent dupes
     message = Message(message_timestamp=time,
                   source_phone_number=source,
                   message=message,
