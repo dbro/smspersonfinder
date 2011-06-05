@@ -89,11 +89,8 @@ class CreateHandler(webapp.RequestHandler):
             upload_to_personfinder(person)
 
             fields = split_message_to_fields(message)
-            reply = 'Added to Person Finder.\nName: %s %s\nStatus: %s\nDesc: %s' % \
-                                                               (fields['person_first_name'],
-                                                               fields['person_last_name'],
-                                                               fields['note_text'],
-                                                               fields['person_other'])
+            reply = 'Added to Person Finder.\nName: %s %s' % (fields['person_first_name'],
+                                                               fields['person_last_name'])
             # limit to 140
             reply = reply[0:139]
         except:
@@ -176,6 +173,8 @@ class PostHandler(webapp.RequestHandler):
                     n = models.Note()
                     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
                     n.author_name = message.source_phone_number
+                    n.source_date = datetime.datetime.isoformat(message.time)
+                    n.text = "raw message text received : " + message.message
                     p.notes.append(n)
                 setattr(p.notes[0], attr, self.request.get(attr))
 
