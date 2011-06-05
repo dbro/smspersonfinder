@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import urllib2
 import urllib
 
@@ -8,12 +10,12 @@ Domain = "smspersonfinder.appspot.com"
 OriginNumber = currentCall.callerID
 
 # Current implementation: name[,dob(MM/DD/YY),address]
-IncomingMessage =  currentCall.initialText #Sets incoming SMS message
+IncomingMessage =  currentCall.initialText 
 
 URI = "/search?message=%s" % IncomingMessage
 Query = urllib.urlencode("%s%s" % (domain, URI))
 
-# TODO Retrieve result from POST
+# Retrieve result from GET
 result = urllib2.urlopen(Query).read()
 
 # Send text message response
