@@ -82,12 +82,23 @@ Physical Characterstics:<br/>
 		function togglePersonallySeen() {
 		var status = document.getElementById('status');
 		var seen = document.getElementById('seen');
-		if (!status) {
+		var seen_radio = document.getElementsByName('seen');
+		
+		if (!status || !seen_radio || !seen) {
 		} else {
+		seen_radio[0].checked = false;
+		seen_radio[1].checked = true;
 		if (status.value == "believed_dead" || status.value == "believed_alive") {
 		seen.style.display = 'block';
 		//alert('Status is ' + status.value);
+		} else {
+		if (status.value == "is_note_author") {
+		seen_radio[1].checked = false;
+		seen_radio[0].checked = true;
 		}
+		seen.style.display = 'none';
+		}
+		
 		}}
 		</script>
 	</div>
