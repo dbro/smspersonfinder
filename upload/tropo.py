@@ -8,7 +8,8 @@ NUMFIELDS = 4
 # Set up payload
 time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 source = currentCall.callerID if TROPO else 'debug source'
-message = currentCall.initialText if TROPO else 'tinhead#mister#moths in mouth#missing'
+#message = currentCall.initialText if TROPO else 'googling#mister#missing#has really big eyes'
+message = currentCall.initialText if TROPO else 'send me to crowdsource dude'
 
 # Build query string
 q = {'source': source,
@@ -25,18 +26,14 @@ else:
 if not TROPO:
     print "Opening %s" % url
 resp = urllib.urlopen(url)
-html = resp.read()
+result = resp.read()
 
 # Output success/failure
-if html:
+if result:
     print "Success"
-    print html
+    print result
     if TROPO:
-        if len(message.split("#")) != NUMFIELDS:
-            # Send 140 char message for how to use correctly.
-            say("Sent to crowd-source for input. For instant upload to Person Finder, use the format last_name#first_name#status_of_person#description")
-        else:
-            say('Succesfully sent to Google Person Finder')
+        say(result)
 else:
     print "Failure"
     if TROPO:
