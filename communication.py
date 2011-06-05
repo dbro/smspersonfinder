@@ -48,7 +48,7 @@ def parse_formatted_message(timestr, source, message):
     If note contains alive, dead, missing, seeking, or author,
     the status is updated accordingly.
     """
-    #message = 'Koff#Jonathan#No comments.#Note.'
+    #message = 'Koff#Jonathan#Status#Description'
     timestr = str(timestr)
     source = str(source)
     message = str(message)
@@ -68,14 +68,14 @@ def parse_formatted_message(timestr, source, message):
     p.source_name = source
     p.first_name = fields[1]
     p.last_name = fields[0]
-    p.other = fields[2]
+    p.other = fields[3]
 
     n = Note()
     n.note_record_id = '%s/note.%s' % (namespace, unique_id)
     n.author_name = source
     p.source_name = source
     n.source_date = p.entry_date
-    n.text = fields[3]
+    n.text = fields[2]
 
     if 'alive' in n.text:
         n.status = 'believed_alive'
